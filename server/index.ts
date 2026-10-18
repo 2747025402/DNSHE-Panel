@@ -20,6 +20,7 @@ import { DatabaseManager } from "../src/db";
 import { runDailySyncAndRenewal } from "../src/cron";
 import type { WebhookType } from "../src/cron";
 import { createD1FromSqlite } from "./d1-sqlite";
+import { LocalKvNamespace } from "./local-kv";
 import { createStaticHandler } from "./static";
 
 // ===== 配置读取 =====
@@ -106,6 +107,10 @@ sqlite.exec("PRAGMA busy_timeout = 5000");
 sqlite.exec("PRAGMA foreign_keys = ON");
 
 const db = createD1FromSqlite(sqlite);
+// Cloudflare Workers injects ASSIST_KV. Docker has no KV binding, so use a
+// SQLite-backed equivalent in the same persistent volume instead of returning
+// "未绑定 ASSIST_KV" for the assist and usage snapshots.
+const assistKv = new LocalKvNamespace(sqlite) as unknown as KVNamespace;
 const { key: aesKey, source: aesKeySource } = resolveAesKey();
 
 // 建表：先跑 schema.sql（含索引，与 Cloudflare 版 d1 execute 的产物一致），
@@ -118,6 +123,7 @@ if (existsSync(SCHEMA_FILE)) {
 
 const env = {
   DB: db,
+  ASSIST_KV: assistKv,
   AES_KEY: aesKey,
   WEBHOOK_URL: optionalEnv("WEBHOOK_URL"),
   WEBHOOK_TYPE: optionalEnv("WEBHOOK_TYPE"),

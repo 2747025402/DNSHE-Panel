@@ -1,0 +1,50 @@
+name: Publish real frontend demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-demo
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+      - name: Build the repository frontend with static API adapter
+        env:
+          VITE_API_BASE_URL: /
+          VITE_STATIC_DEMO: '1'
+        run: npm run build:pages --prefix frontend
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload real frontend
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

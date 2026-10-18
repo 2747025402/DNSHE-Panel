@@ -165,23 +165,28 @@ export const BANK_KIND_META: Record<
   BankKind,
   { label: string; titleClass: string; hoverBorderClass: string; hoverTextClass: string }
 > = {
+  /*
+   * 第23轮 §30：这里原先用 emerald / sky / amber 三种色相区分三类词库 ——
+   * 那是「用色相表达类别」，正是配色宪章禁用的（颜色只表达状态/选择/品牌）。
+   * 类别区分交给标签文字本身，视觉统一为中性主色。
+   */
   cn: {
     label: "中文词库",
-    titleClass: "text-emerald-400",
-    hoverBorderClass: "hover:border-emerald-500/40",
-    hoverTextClass: "group-hover:text-emerald-300",
+    titleClass: "text-primary",
+    hoverBorderClass: "hover:border-primary/40",
+    hoverTextClass: "group-hover:text-primary",
   },
   "en-length": {
     label: "英文词库 · 按字母数",
-    titleClass: "text-sky-400",
-    hoverBorderClass: "hover:border-sky-500/40",
-    hoverTextClass: "group-hover:text-sky-300",
+    titleClass: "text-primary",
+    hoverBorderClass: "hover:border-primary/40",
+    hoverTextClass: "group-hover:text-primary",
   },
   "en-themed": {
     label: "英文词库 · 按主题",
-    titleClass: "text-amber-400",
-    hoverBorderClass: "hover:border-amber-500/40",
-    hoverTextClass: "group-hover:text-amber-300",
+    titleClass: "text-primary",
+    hoverBorderClass: "hover:border-primary/40",
+    hoverTextClass: "group-hover:text-primary",
   },
 };
 

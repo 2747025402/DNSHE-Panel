@@ -1,0 +1,118 @@
+/* 资产的共同列轨道：由实际容器宽度决定列表/紧凑布局，不按整窗猜剩余空间。 */
+.asset-collection { container: assets / inline-size; min-width: 0; }
+.asset-filter-bar { container: asset-filters / inline-size; }
+.asset-filter-controls { grid-template-columns: minmax(0, 1fr); }
+.asset-filter-footer {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  align-items: center;
+  /* 工具带和摘要之间保留可读的呼吸区；分隔线由 footer 自己绘制，
+   * 不再把细线贴在导出/收起按钮的上沿。 */
+  position: relative;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 0;
+}
+.asset-filter-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  border-top: 1px solid var(--border-soft);
+  pointer-events: none;
+}
+.asset-filter-summary { min-width: 0; }
+.asset-filter-summary > span { max-width: 100%; }
+.asset-filter-actions { min-width: 0; align-self: center; }
+.asset-filter-actions > button { white-space: nowrap; }
+@container asset-filters (min-width: 800px) {
+  .asset-filter-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .asset-filter-footer { grid-template-columns: minmax(0, 1fr) max-content; gap: 16px; }
+  .asset-filter-actions { display: flex; align-items: center; justify-content: flex-end; }
+}
+.asset-tracks { min-width: 0; }
+.asset-column-head { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+.asset-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 16px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-soft);
+}
+.asset-record[data-asset-record] { min-width: 0; }
+.asset-record:last-child { border-bottom: 0; }
+.asset-record--highlighted { outline: 2px solid var(--text-primary); outline-offset: -2px; }
+.asset-name { min-width: 0; }
+.asset-name > button { max-width: 100%; min-height: 32px; font-size: 14px; font-weight: 600; letter-spacing: 0; }
+.asset-domain-name { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; word-break: break-word; line-height: 1.45; }
+.asset-status { justify-self: end; }
+.asset-date, .asset-provider { min-width: 0; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.asset-date::before, .asset-provider::before { content: attr(data-label); display: block; font: 11px/1.6 system-ui, sans-serif; color: var(--text-muted); margin-bottom: 2px; }
+.asset-date { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.asset-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
+.asset-actions button:not([data-menu-item]), .asset-actions a { min-height: 32px; white-space: nowrap; }
+.asset-actions button:focus-visible, .asset-name button:focus-visible, .asset-actions a:focus-visible,
+.asset-card-actions button:focus-visible, .asset-card-actions a:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+.asset-collection--cards .asset-record { border: 1px solid var(--border-base); border-radius: 8px; }
+.asset-collection--cards .asset-provider { grid-column: 1 / -1; }
+.asset-collection--cards .asset-actions { padding-top: 10px; border-top: 1px solid var(--border-soft); }
+.asset-card-actions button, .asset-card-actions a { white-space: nowrap; min-height: 32px; }
+.asset-card-actions [data-asset-menu-trigger] { min-width: 32px; }
+
+@container assets (max-width: 959px) {
+  /* 紧凑列表仍是三个阅读层：身份、日期、来源与操作。
+   * 来源不单占一整行，日期列为尾部操作预留同一宽度。 */
+  .asset-collection--list .asset-provider { grid-column: 1; grid-row: 3; }
+  .asset-collection--list .asset-actions { grid-column: 2; grid-row: 3; }
+}
+
+@container assets (min-width: 960px) {
+  .asset-collection--list .asset-tracks {
+    display: grid;
+    /* 所有表头/行共用一套列轨道：身份与操作有最低阅读宽度，
+     * 日期和来源不被长域名挤成不可读的碎片。 */
+    --asset-track-columns: minmax(11rem, 1.7fr) minmax(5.5rem, .65fr) minmax(7rem, .85fr) minmax(7rem, .85fr) minmax(7.5rem, .8fr) minmax(11rem, 1.7fr);
+    grid-template-columns: var(--asset-track-columns);
+    column-gap: 16px;
+    padding: 10px 16px;
+  }
+  /* 表头属于集合首行。main有自己的滚动与padding，吸顶会把列头悬在旧行中间。 */
+  .asset-collection--list .asset-column-head { position: static; width: auto; height: auto; overflow: visible; clip-path: none; background: var(--bg-elevated); border-bottom: 1px solid var(--border-base); }
+  .asset-column-head [role="columnheader"] { font-size: 11px; font-weight: 500; color: var(--text-muted); text-align: center; }
+  .asset-column-head [role="columnheader"]:first-child { text-align: left; }
+  .asset-column-head [role="columnheader"]:last-child { text-align: right; }
+  .asset-collection--list .asset-record { min-height: 58px; }
+  .asset-collection--list .asset-status { justify-self: center; }
+  .asset-collection--list .asset-date, .asset-collection--list .asset-provider { text-align: center; }
+  .asset-collection--list .asset-date::before, .asset-collection--list .asset-provider::before { display: none; }
+  .asset-collection--list .asset-actions { grid-column: auto; }
+  .asset-collection--list .asset-actions { justify-content: flex-end; }
+}
+
+/* 数据风的行是可扫描的工作面：长域名只截断身份列，不把日期/动作挤换行。
+ * 卡片视图不套用此规则，继续保留对象卡的浏览层次。 */
+@container assets (min-width: 960px) {
+  .asset-collection--list .asset-name,
+  .asset-collection--list .asset-status,
+  .asset-collection--list .asset-date,
+  .asset-collection--list .asset-provider,
+  .asset-collection--list .asset-actions { min-width: 0; }
+  .asset-collection--list .asset-date,
+  .asset-collection--list .asset-provider { white-space: nowrap; }
+  /* 域名是唯一身份，数据表也保留完整文本；必要时只在域名内部换行，不能用省略号隐藏对象。 */
+  .asset-collection--list .asset-domain-name { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; word-break: break-word; }
+}
+
+@media (max-width: 767px) {
+  .asset-record { padding-inline: 12px; }
+  .asset-actions button:not([data-menu-item]), .asset-actions a, .asset-name > button { min-height: 40px; }
+  .asset-actions [data-asset-menu-trigger] { min-width: 40px; }
+  .asset-card-actions button, .asset-card-actions a { min-height: 40px; }
+  .asset-card-actions [data-asset-menu-trigger] { min-width: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asset-record { transition: none; }
+}

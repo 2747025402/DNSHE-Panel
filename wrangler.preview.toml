@@ -1,0 +1,24 @@
+# 候选只读实例：独立 Worker／域名，共享 D1/KV 仅用于读取同一份生产数据。
+# 不配置 Cron，避免候选实例重复同步或续期；PREVIEW_READ_ONLY 阻断业务写入。
+name = "dnshe-panel-preview"
+main = "src/index.ts"
+compatibility_date = "2024-04-01"
+workers_dev = false
+preview_urls = false
+
+[assets]
+directory = "./frontend/dist"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "shydns-console-db"
+database_id = "6a01f49c-db70-40f3-b1e6-db4a3d9afd55"
+
+[[kv_namespaces]]
+binding = "ASSIST_KV"
+id = "f44739ac9544450da6f1b585fdd51fdf"
+
+[vars]
+PREVIEW_READ_ONLY = "1"

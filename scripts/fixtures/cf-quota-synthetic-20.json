@@ -1,0 +1,3413 @@
+{
+  "GET /api/cf/quota": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "accounts": [
+        {
+          "account_id": 900001,
+          "alias": "Synthetic 01 · account-1@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 1",
+          "counts": {
+            "zones": 1,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 100000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-1",
+                "bytes": 100000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 850
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1200
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 97420
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 790
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 660
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1000
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 10000,
+                "rowsWritten": 10,
+                "readQueries": 1,
+                "writeQueries": 1
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 20,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-1"
+          ],
+          "kv_names": [
+            "synthetic-kv-1"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900002,
+          "alias": "Synthetic 02 · account-2@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 2",
+          "counts": {
+            "zones": 2,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 200000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-2",
+                "bytes": 200000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 250,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 300,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 350,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 400,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 450,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 90000,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 20000,
+                "rowsWritten": 20,
+                "readQueries": 2,
+                "writeQueries": 2
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 40,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-2"
+          ],
+          "kv_names": [
+            "synthetic-kv-2"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900003,
+          "alias": "Synthetic 03 · account-3@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 3",
+          "counts": {
+            "zones": 3,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 300000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-3",
+                "bytes": 300000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 350,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 400,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 450,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 500,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 550,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 30000,
+                "rowsWritten": 30,
+                "readQueries": 3,
+                "writeQueries": 3
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 60,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-3"
+          ],
+          "kv_names": [
+            "synthetic-kv-3"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900004,
+          "alias": "Synthetic 04 · account-4@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 4",
+          "counts": {
+            "zones": 4,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 400000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-4",
+                "bytes": 400000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": null,
+            "d1": null,
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 80,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null,
+            "reason": "SYNTHETIC：部分 Analytics 数据不可读；不是实际账号权限。"
+          },
+          "d1_names": [
+            "synthetic-db-4"
+          ],
+          "kv_names": [
+            "synthetic-kv-4"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900005,
+          "alias": "Synthetic 05 · account-5@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 5",
+          "counts": {
+            "zones": 5,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 500000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-5",
+                "bytes": 500000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 550,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 600,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 650,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 700,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 750,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 800,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 50000,
+                "rowsWritten": 50,
+                "readQueries": 5,
+                "writeQueries": 5
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 100,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-5"
+          ],
+          "kv_names": [
+            "synthetic-kv-5"
+          ],
+          "r2_names": [],
+          "pages_names": [],
+          "error": "SYNTHETIC：账号读取失败，附带旧读数不得作为本次成功合计。"
+        },
+        {
+          "account_id": 900006,
+          "alias": "Synthetic 06 · account-6@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 6",
+          "counts": {
+            "zones": 0,
+            "d1_databases": 0,
+            "kv_namespaces": 0,
+            "r2_buckets": 0,
+            "worker_scripts": 0,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 0,
+            "d1_detail": []
+          },
+          "traffic": {
+            "workers": [],
+            "d1": [],
+            "kv": [],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [],
+          "kv_names": [],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900007,
+          "alias": "Synthetic 07 · account-7@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 7",
+          "counts": {
+            "zones": 7,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 700000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-7",
+                "bytes": 700000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 750,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 800,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 850,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 900,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 70000,
+                "rowsWritten": 70,
+                "readQueries": 7,
+                "writeQueries": 7
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 140,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-7"
+          ],
+          "kv_names": [
+            "synthetic-kv-7"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900008,
+          "alias": "Synthetic 08 · account-8@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 8",
+          "counts": {
+            "zones": 8,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 800000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-8",
+                "bytes": 800000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 850,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 900,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1000,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1100,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 80000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 4900000,
+                "rowsWritten": 80,
+                "readQueries": 8,
+                "writeQueries": 8
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 160,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-8"
+          ],
+          "kv_names": [
+            "synthetic-kv-8"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900009,
+          "alias": "Synthetic 09 · account-9@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 9",
+          "counts": {
+            "zones": 9,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 900000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-9",
+                "bytes": 900000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1000,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1100,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1150,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1200,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 90000,
+                "rowsWritten": 90,
+                "readQueries": 9,
+                "writeQueries": 9
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 180,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-9"
+          ],
+          "kv_names": [
+            "synthetic-kv-9"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900010,
+          "alias": "Synthetic 10 · account-10@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 10",
+          "counts": {
+            "zones": 10,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1000000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-10",
+                "bytes": 1000000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1100,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1150,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1200,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1250,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1300,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 100000,
+                "rowsWritten": 100,
+                "readQueries": 10,
+                "writeQueries": 10
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 200,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 95000,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-10"
+          ],
+          "kv_names": [
+            "synthetic-kv-10"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900011,
+          "alias": "Synthetic 11 · account-11@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 11",
+          "counts": {
+            "zones": 11,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1100000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-11",
+                "bytes": 1100000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1150,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1200,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1250,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1300,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1350,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1400,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 110000,
+                "rowsWritten": 110,
+                "readQueries": 11,
+                "writeQueries": 11
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 220,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-11"
+          ],
+          "kv_names": [
+            "synthetic-kv-11"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900012,
+          "alias": "Synthetic 12 · account-12@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 12",
+          "counts": {
+            "zones": 12,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1200000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-12",
+                "bytes": 1200000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1250,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1300,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1350,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1400,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1450,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1500,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 120000,
+                "rowsWritten": 120,
+                "readQueries": 12,
+                "writeQueries": 12
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 240,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-12"
+          ],
+          "kv_names": [
+            "synthetic-kv-12"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900013,
+          "alias": "Synthetic 13 · account-13@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 13",
+          "counts": {
+            "zones": 13,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1300000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-13",
+                "bytes": 1300000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1350,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1400,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1450,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1500,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1550,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1600,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 130000,
+                "rowsWritten": 130,
+                "readQueries": 13,
+                "writeQueries": 13
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 260,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-13"
+          ],
+          "kv_names": [
+            "synthetic-kv-13"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900014,
+          "alias": "Synthetic 14 · account-14@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 14",
+          "counts": {
+            "zones": 14,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1400000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-14",
+                "bytes": 1400000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1450,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1500,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1550,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1600,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1650,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1700,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 140000,
+                "rowsWritten": 140,
+                "readQueries": 14,
+                "writeQueries": 14
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 280,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-14"
+          ],
+          "kv_names": [
+            "synthetic-kv-14"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900015,
+          "alias": "Synthetic 15 · account-15@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 15",
+          "counts": {
+            "zones": 15,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1500000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-15",
+                "bytes": 1500000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1550,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1600,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1650,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1700,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1750,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1800,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 150000,
+                "rowsWritten": 150,
+                "readQueries": 15,
+                "writeQueries": 15
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 300,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-15"
+          ],
+          "kv_names": [
+            "synthetic-kv-15"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900016,
+          "alias": "Synthetic 16 · account-16@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 16",
+          "counts": {
+            "zones": 16,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1600000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-16",
+                "bytes": 1600000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1650,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1700,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1750,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1800,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1850,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 1900,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 160000,
+                "rowsWritten": 160,
+                "readQueries": 16,
+                "writeQueries": 16
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 320,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-16"
+          ],
+          "kv_names": [
+            "synthetic-kv-16"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900017,
+          "alias": "Synthetic 17 · account-17@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 17",
+          "counts": {
+            "zones": 17,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1700000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-17",
+                "bytes": 1700000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1750,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1800,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1850,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 1900,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 1950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 2000,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 170000,
+                "rowsWritten": 170,
+                "readQueries": 17,
+                "writeQueries": 17
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 340,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-17"
+          ],
+          "kv_names": [
+            "synthetic-kv-17"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900018,
+          "alias": "Synthetic 18 · account-18@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 18",
+          "counts": {
+            "zones": 18,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1800000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-18",
+                "bytes": 1800000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1850,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 1900,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 1950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 2000,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 2050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 2100,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 180000,
+                "rowsWritten": 180,
+                "readQueries": 18,
+                "writeQueries": 18
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 360,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-18"
+          ],
+          "kv_names": [
+            "synthetic-kv-18"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900019,
+          "alias": "Synthetic 19 · account-19@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 19",
+          "counts": {
+            "zones": 19,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 1900000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-19",
+                "bytes": 1900000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 1950,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 2000,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 2050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 2100,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 2150,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 2200,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 190000,
+                "rowsWritten": 190,
+                "readQueries": 19,
+                "writeQueries": 19
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 380,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-19"
+          ],
+          "kv_names": [
+            "synthetic-kv-19"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        },
+        {
+          "account_id": 900020,
+          "alias": "Synthetic 20 · account-20@example.invalid",
+          "cf_account_name": "SYNTHETIC ONLY 20",
+          "counts": {
+            "zones": 20,
+            "d1_databases": 1,
+            "kv_namespaces": 1,
+            "r2_buckets": 0,
+            "worker_scripts": 1,
+            "pages_projects": 0,
+            "tunnels": 0
+          },
+          "storage": {
+            "d1_bytes": 2000000,
+            "d1_detail": [
+              {
+                "name": "synthetic-db-20",
+                "bytes": 2000000,
+                "tables": 2
+              }
+            ]
+          },
+          "traffic": {
+            "workers": [
+              {
+                "date": "2026-10-11",
+                "requests": 0,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-12",
+                "requests": 2050,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-13",
+                "requests": 2100,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-14",
+                "requests": 2150,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-15",
+                "requests": 2200,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-16",
+                "requests": 2250,
+                "errors": 0,
+                "subrequests": 0
+              },
+              {
+                "date": "2026-10-17",
+                "requests": 2300,
+                "errors": 0,
+                "subrequests": 0
+              }
+            ],
+            "d1": [
+              {
+                "date": "2026-10-11",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-12",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-13",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-14",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-15",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-16",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              },
+              {
+                "date": "2026-10-17",
+                "rowsRead": 200000,
+                "rowsWritten": 200,
+                "readQueries": 20,
+                "writeQueries": 20
+              }
+            ],
+            "kv": [
+              {
+                "date": "2026-10-11",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-12",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-13",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-14",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-15",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-16",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              },
+              {
+                "date": "2026-10-17",
+                "read": 400,
+                "write": 0,
+                "delete": 0,
+                "list": 0
+              }
+            ],
+            "r2_ops": [],
+            "r2_storage": null
+          },
+          "d1_names": [
+            "synthetic-db-20"
+          ],
+          "kv_names": [
+            "synthetic-kv-20"
+          ],
+          "r2_names": [],
+          "pages_names": []
+        }
+      ],
+      "limits": {
+        "workersRequestsPerDay": 100000,
+        "d1RowsReadPerDay": 5000000,
+        "d1RowsWrittenPerDay": 100000,
+        "d1StorageBytes": 5368709120,
+        "kvReadsPerDay": 100000,
+        "kvWritesPerDay": 1000,
+        "kvDeletesPerDay": 1000,
+        "kvStorageBytes": 1073741824,
+        "r2StorageBytes": 10737418240,
+        "r2ClassAPerMonth": 1000000,
+        "r2ClassBPerMonth": 10000000
+      },
+      "_synthetic": {
+        "label": "SYNTHETIC ONLY - no real accounts or credentials",
+        "date": "2026-10-17",
+        "scenarios": [
+          "20-accounts",
+          "zero",
+          "missing-today",
+          "null",
+          "failed-with-old-readings",
+          "no-resource-records",
+          "missing-field",
+          "D1-high",
+          "KV-high"
+        ]
+      }
+    }
+  }
+}

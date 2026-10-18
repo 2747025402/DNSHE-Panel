@@ -1,0 +1,32 @@
+name: Publish release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body: |
+            ## 三种界面视图
+
+            - **设计风**：对象、结论和下一步优先。
+            - **数据风**：范围、异常、比较和行级动作为主。
+            - **卡片风**：自适应对象卡，适合快速浏览。
+
+            在线体验：[GitHub Pages 静态演示](https://shiranzby.github.io/DNSHE-Panel/)
+
+            演示使用合成数据，不连接任何 Worker、数据库、Cookie 或 API Token。
+
+            ## Docker 自建修复
+
+            Docker 运行时现在自动使用 SQLite-backed local KV 提供 `ASSIST_KV`，助力缓存随 `/data` 持久化；Cloudflare Workers 仍使用自己的 KV namespace。

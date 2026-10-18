@@ -1,6 +1,6 @@
 services:
   dnshe-panel:
-    image: ghcr.io/shiranzby/dnshe-panel:latest # 镜像地址，大陆可换 ghcr.nju.edu.cn/shiranzby/dnshe-panel
+    image: ${IMAGE_REPO:-ghcr.io/shiranzby/dnshe-panel}:${IMAGE_TAG:-latest} # 默认官方 GHCR；大陆网络可在 .env 切换镜像站
     container_name: dnshe-panel # 容器名称
     restart: unless-stopped # 异常退出自动重启
     ports:

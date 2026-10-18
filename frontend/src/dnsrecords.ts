@@ -53,6 +53,17 @@ export const CF_DNS_TYPE_SET: ReadonlySet<string> = new Set(CF_DNS_TYPE_OPTIONS.
 /** 只有 MX / SRV 需要优先级，其余类型不展示也不下发该字段 */
 export const needsDnsPriority = (type: string): boolean => type === "MX" || type === "SRV";
 
+/**
+ * SRV 的结构化字段（官方 V2 `createDns`/`modifyDns` 的 record_weight / record_port / record_target）
+ *
+ * 第24轮B 之前 UI 有 SRV 类型却只有一栏「记录值」，端口/目标/权重全都填不了 ——
+ * 等于这个类型是坏的。`aloneio/DNSHE-Panel` 也明确做了 structured SRV/CAA fields。
+ */
+export const needsDnsSrvFields = (type: string): boolean => type === "SRV";
+
+/** CAA 的结构化字段（官方 V2 的 caa_flag / caa_tag / caa_value） */
+export const needsDnsCaaFields = (type: string): boolean => type === "CAA";
+
 /** 批量修改需要读到的记录字段（与 App.tsx 的 DnsRecord 结构兼容） */
 export interface DnsRecordLike {
   // DNSHE 的记录 id 是数字，Cloudflare 是 32 位十六进制字符串
@@ -275,7 +286,7 @@ export function buildDnsEditTargets(
 
     return {
       record_id: key,
-      label: `${rec.type} ${rec.name} → ${rec.content}`,
+      label: `${rec.type} ${rec.name}：${rec.content}`,
       origin_content: rec.content,
       unchanged,
       type,

@@ -5,44 +5,61 @@
 /*
  * 主题配色变量 —— 语义化 CSS 变量，配合 tailwind.config.js 中的语义色使用。
  * 亮色为默认 (:root)，暗色通过挂在 <html> 上的 .dark 类切换。
+ *
+ * 🔴🔴 第23轮「去蓝紫」重制（2026-10-15）：原先是 indigo #6366f1 打底 + 玻璃卡 +
+ *      霓虹渐变按钮 + 同色发光阴影，用户判定「蓝色紫色是 AI 污染导致的，不是人的审美」。
+ *      现按瑞士国际主义重建：**默认黑白灰，颜色只表达状态/选择/品牌语义**。
+ *      · 层级靠明度阶梯与发丝线，不靠色相与投影；
+ *      · 主色（primary）是无色相的近黑/近白，因此 tailwind.config.js 用
+ *        `rgb(var(--accent-rgb) / <alpha-value>)` 承接 —— 这里必须存 RGB 三通道；
+ *      · 状态色（成功/警告/危险）保留，因为那是语义而非装饰。
  */
 :root {
-  --bg-base: #f1f5f9;      /* 页面最底层背景 */
+  --bg-base: #f7f7f8;      /* 页面最底层背景（比表面暗一档，靠明度分层） */
   --bg-surface: #ffffff;   /* 卡片/表格容器 */
-  --bg-elevated: #f8fafc;  /* 悬浮/表头/输入框 */
-  --bg-hover: #f1f5f9;     /* hover 态 */
-  --border-base: #e2e8f0;  /* 主边框 */
-  --border-soft: #eef2f7;  /* 更浅的分隔线 */
-  --text-primary: #0f172a; /* 主文字 */
-  --text-secondary: #334155;
-  --text-muted: #64748b;   /* 次要/说明文字 */
-  --accent: #6366f1;       /* 品牌强调色 */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(15, 23, 42, 0.06);
-  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
-  --input-bg: rgba(248, 250, 252, 0.9);
-  --input-border: rgba(15, 23, 42, 0.12);
+  --bg-elevated: #f4f4f5;  /* 悬浮/表头/输入框 */
+  --bg-hover: #f4f4f5;     /* hover 态 */
+  --border-base: #e4e4e7;  /* 主边框（发丝线，0.5–1 CSS px） */
+  --border-soft: #f0f0f1;  /* 更浅的分隔线 */
+  --text-primary: #18181b; /* 主文字 */
+  --text-secondary: #3f3f46;
+  --text-muted: #71717a;   /* 次要/说明文字（对 #fff ≈ 4.8:1，达 4.5:1 线） */
+  --accent-rgb: 24 24 27;       /* 主色 = 近黑 */
+  --accent-fg-rgb: 255 255 255; /* 主色上的文字 */
+  --accent-hover-rgb: 39 39 42; /* 主色 hover */
+  --accent-soft-rgb: 244 244 245; /* 主色的弱底（选中/提示） */
 }
 
 .dark {
-  --bg-base: #090d14;
-  --bg-surface: #0f151f;
-  --bg-elevated: #1a2433;
-  --bg-hover: #1a2433;
-  --border-base: #1a2433;
-  --border-soft: #131b28;
-  --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --accent: #6366f1;
-  --glass-bg: rgba(26, 36, 51, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --input-bg: rgba(15, 21, 31, 0.8);
-  --input-border: rgba(255, 255, 255, 0.1);
+  --bg-base: #09090b;
+  --bg-surface: #131316;
+  --bg-elevated: #1c1c20;
+  --bg-hover: #1f1f23;
+  --border-base: #27272a;
+  --border-soft: #1f1f23;
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --accent-rgb: 250 250 250;    /* 主色 = 近白（不机械反相，按灰阶分层） */
+  --accent-fg-rgb: 24 24 27;
+  --accent-hover-rgb: 228 228 231;
+  --accent-soft-rgb: 39 39 42;
 }
 
 @layer base {
+  /*
+   * The app owns the viewport and exposes one intentional scroll surface:
+   * <main>.  Without an explicit root height the fixed 100dvh shell's
+   * scrollable overflow can propagate to <html>, producing a second browser
+   * scrollbar when long CF quota details are opened.
+   */
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--bg-base);
@@ -98,41 +115,40 @@
   border-radius: 3px;
 }
 
-/* 高端玻璃微卡特效 */
+/*
+ * 玻璃微卡特效 —— 第23轮「去蓝紫」重制时**改成实面发丝线卡**。
+ *
+ * 原先是 backdrop-filter: blur(12px) + 半透明底 + 彩色投影，hover 还上浮 2px。
+ * 瑞士国际主义禁用「多层玻璃、漂浮背景」，而且半透明卡在深色下会让正文对比度漂移；
+ * 现在：实面 surface + 1px 发丝线，hover 只做明度变化，不位移、不发光。
+ */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  /* 仅过渡 transform/border/阴影，避免拖拽重排时逐帧触发全属性过渡导致卡顿 */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-base);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.25);
-  box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.1);
-  transform: translateY(-2px);
+  background: var(--bg-elevated);
 }
 
-/* 霓虹按钮渐变 */
+/* 主行动按钮：实面中性色，无渐变、无辉光、不上浮 */
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  transition: all 0.2s ease-in-out;
+  background: rgb(var(--accent-rgb));
+  color: rgb(var(--accent-fg-rgb));
+  transition: background-color 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-  transform: translateY(-1px);
+  background: rgb(var(--accent-hover-rgb));
 }
 
-/* 表单框阴影 */
+/* 表单框：发丝线边框 + 中性焦点环（原先焦点是 indigo + 同色光晕） */
 .form-input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-base);
   color: var(--text-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   /*
    * 行高显式锁定：<select> 的 UA 默认 line-height 是 normal（约 1.2em），
    * 而 <input> 是 20px —— 同一个 40px 高的框里，两种元素的文字视觉高度会不同。
@@ -143,9 +159,15 @@
 }
 
 .form-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: rgb(var(--accent-rgb));
+  box-shadow: 0 0 0 2px rgb(var(--accent-rgb) / 0.18);
   outline: none;
+}
+
+/* 概览配额位于半宽模块内；自动档按容器预算，不按整窗误塞四列。
+ * 显式 1–4 列偏好不改义。14rem 给完整账号与状态留出预算。 */
+.overview-quota-auto {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
 }
 
 /*
@@ -273,6 +295,42 @@
   }
 }
 
+/*
+ * NOTE: 第22轮删掉了 `.nav-sublist`（侧边栏「设置」的二级菜单同行移除，见 App.tsx 的 nav 注释）。
+ *       原本它用 `grid-template-rows: 0fr → 1fr` 做展开/收起过渡，而不是 max-height ——
+ *       max-height 必须猜一个具体上限，猜小了展开到一半被截断、猜大了收起时先卡住不动再突然跳。
+ *       若将来再引入「可折叠子菜单」，照这个写法来，别退回 max-height。
+ */
+
+/*
+ * 图标线宽统一（第23轮D「图标风格化」）
+ *
+ * Lucide 默认 stroke-width = 2 是按 24px 画的；本站图标大量是 14–20px，
+ * 笔画占比高达 10–14%，显粗、显"原始"（用户原话：「很多很原始的图标都存在」）。
+ * 统一收到 1.5 —— 同一套图标体系，细一档立刻精致，且不发虚。
+ *
+ * 🔴 不需要逐处传 strokeWidth：CSS 的 stroke-width 优先级高于 svg 上的
+ *    **表现属性**（presentation attribute），一条规则全站生效。
+ *    实心图标（TriangleRight 等 fill 图标）不吃 stroke，不受影响。
+ * 🔴 选择器写 `svg.lucide` 而不是 `svg`：QRCodeSVG（qrcode.react）也是 svg，
+ *    但它不是 lucide，不能被这条规则扫到。
+ */
+svg.lucide {
+  stroke-width: 1.5;
+}
+
+/*
+ * 展开/收起指示：**用文字，不用图形**
+ *
+ * 第23轮D 先改成实心三角，用户反馈「这个三角形也太抽象了吧」⇒ 第23轮E 回归规范原文：
+ * 「默认不使用 Chevron、v 或旋转箭头装饰；展开、更多、翻月、刷新可用**短文字**」。
+ * 现在所有可折叠分组/面板行尾都是「展开 / 收起」两个 11px 弱化字，
+ * 与工具栏既有的「展开 / 收起」文字按钮完全一致，读屏也能正确念出动作。
+ *
+ * ⚠️ 因此不再需要任何三角形图标规则（svg.lucide-triangle-right 已删）。
+ * 若将来要恢复图形指示，先看这一段为什么被推翻 —— 小尺寸实心三角的"可点"暗示不足。
+ */
+
 /* 尊重系统的「减少动态效果」偏好 */
 @media (prefers-reduced-motion: reduce) {
   .ov-anim > *,
@@ -280,6 +338,10 @@
   .page-anim,
   .expand-anim {
     animation: none;
+  }
+  /* 手机端顶部下拉抽屉的滑出过渡 */
+  #app-nav-panel {
+    transition: none;
   }
 }
 

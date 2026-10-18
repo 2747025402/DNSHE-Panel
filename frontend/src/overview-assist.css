@@ -1,0 +1,18 @@
+.overview-assist { container: overview-assist / inline-size; min-width: 0; border-block: 1px solid var(--border-base); color: var(--text-primary); }
+.overview-assist > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; }
+.overview-assist h3 { margin: 0; font-size: 14px; font-weight: 650; }
+.overview-assist > header > button { min-height: 40px; padding: 0 10px; border: 1px solid var(--border-base); border-radius: 6px; background: var(--bg-surface); font-size: 12px; white-space: nowrap; }
+.overview-assist > header > button:hover { background: var(--bg-hover); }
+.overview-assist > header > button:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 3px; }
+.overview-assist dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0 16px 16px; gap: 16px; }
+.overview-assist dl > div { min-width: 0; border-left: 1px solid var(--border-soft); padding-left: 16px; }
+.overview-assist dl > div:first-child { border-left: 0; padding-left: 0; }
+.overview-assist dt { color: var(--text-muted); font-size: 12px; }
+.overview-assist dd { margin: 7px 0 0; font-size: 23px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.overview-assist dd small { font-size: 12px; font-weight: 400; color: var(--text-muted); }
+.overview-assist > p { margin: 0; padding: 0 16px 12px; color: var(--text-muted); font-size: 12px; }
+@container overview-assist (max-width: 420px) {
+  .overview-assist dl { gap: 10px; }
+  .overview-assist dl > div { padding-left: 10px; }
+  .overview-assist dd { font-size: 20px; }
+}

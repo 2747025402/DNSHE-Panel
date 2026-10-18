@@ -14,6 +14,31 @@ import type {
 } from "./dnshe";
 import type { UpstreamSubdomain } from "./db";
 
+export type CfReadFailureKind = "permission" | "authentication" | "not_enabled" | "rate_limit" | "timeout" | "network" | "unavailable" | "response" | "query";
+export const CF_READ_BUDGET_EXHAUSTED = "本轮 Cloudflare 读取预算已用尽";
+export interface CfReadBudget {
+  remaining: number;
+  deadline: number;
+}
+
+/** 只保存供应商诊断，不携带请求头、Token 或完整响应。 */
+export class CfReadError extends Error {
+  constructor(public readonly kind: CfReadFailureKind, message: string, public readonly detail?: { http_status?: number; code?: number }) {
+    super(message);
+    this.name = "CfReadError";
+  }
+}
+
+function cfFailureKind(status: number, detail: string, code?: number): CfReadFailureKind {
+  // R2 未开通也返回 403，不能因此要求用户反复扩权或替换 Token。
+  if (code === 10042 || /please enable R2|R2 (?:is )?not enabled/i.test(detail)) return "not_enabled";
+  if (status === 429 || /rate.?limit|too many requests/i.test(detail)) return "rate_limit";
+  if (status === 401 || /invalid.*token|invalid bearer|expired.*token/i.test(detail)) return "authentication";
+  if (status === 403 || /permission|not authorized|not authorised|authentication error|access denied/i.test(detail)) return "permission";
+  if (status >= 500) return "unavailable";
+  return "query";
+}
+
 /**
  * 把 Cloudflare zone id 映射为 domains_cache 的数值主键
  *
@@ -65,6 +90,20 @@ export interface CfTokenVerifyInfo {
 export interface CfAccountInfo {
   id: string;
   name: string;
+}
+
+/**
+ * zone 创建结果
+ *
+ * NOTE: 只保留「域名委派」流程真正要用的三个字段：新 zone 的 id、CF 分配的两台 NS、
+ * 以及 zone 状态。status 建出来必然是 `pending` —— 官方文档明确「zone 创建后处于
+ * pending，必须把域名 NS 指过来（或完成 partial 校验）才会 active」。
+ */
+export interface CfZoneCreateResult {
+  id: string;
+  name: string;
+  status: string;
+  name_servers: string[];
 }
 
 /** DNS 记录写接口参数 —— 路由层从请求体摊平后构造，name 允许相对名/完整名/@ */
@@ -157,8 +196,48 @@ export class CloudflareClient {
   private apiToken: string;
   private baseUrl = "https://api.cloudflare.com/client/v4";
 
-  constructor(apiToken: string) {
+  constructor(apiToken: string, private readonly readTimeoutMs = 10_000, private readonly readBudget?: CfReadBudget) {
     this.apiToken = String(apiToken || "").trim();
+  }
+
+  withReadBudget(budget: CfReadBudget): CloudflareClient {
+    return new CloudflareClient(this.apiToken, this.readTimeoutMs, budget);
+  }
+
+  private safeDetail(detail: string): string {
+    return (this.apiToken ? detail.split(this.apiToken).join("[REDACTED]") : detail).slice(0, 1000);
+  }
+
+  /** 读取超时包含响应体；不为写请求添加可能造成提交状态不明的自动重试。 */
+  private async readJson<T>(url: string, init: RequestInit): Promise<{ response: Response; data: T }> {
+    if (this.readBudget && this.readBudget.remaining <= 0) {
+      throw new CfReadError("query", `${CF_READ_BUDGET_EXHAUSTED}，已保留可用快照；下次刷新优先补读未完成的账号`);
+    }
+    const timeoutMs = Math.min(this.readTimeoutMs, this.readBudget ? this.readBudget.deadline - Date.now() : this.readTimeoutMs);
+    if (timeoutMs <= 0) throw new CfReadError("timeout", "本轮 Cloudflare 刷新已到时间上限，已保留可用快照，请稍后重试");
+    if (this.readBudget) this.readBudget.remaining--;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      // workerd 仅支持 follow/manual；手动拒绝跳转，避免一次 fetch 绕过批次预算。
+      const response = await fetch(url, { ...init, signal: controller.signal, ...(this.readBudget ? { redirect: "manual" as const } : {}) });
+      if (response.status >= 300 && response.status < 400) {
+        await response.body?.cancel().catch(() => undefined);
+        throw new CfReadError("response", `Cloudflare 读取收到重定向 (HTTP ${response.status})，已拒绝跳转以遵守本轮读取预算`);
+      }
+      try {
+        return { response, data: await response.json() as T };
+      } catch (error) {
+        if (controller.signal.aborted) throw error;
+        throw new CfReadError(cfFailureKind(response.status, "") === "query" ? "response" : cfFailureKind(response.status, ""), `Cloudflare 响应无法解析 (HTTP ${response.status})`);
+      }
+    } catch (error) {
+      if (controller.signal.aborted) throw new CfReadError("timeout", `Cloudflare 读取超时（最长 ${this.readTimeoutMs / 1000} 秒／次），请稍后重试`);
+      if (error instanceof CfReadError) throw error;
+      throw new CfReadError("network", "Cloudflare 网络连接失败，请稍后重试");
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   /**
@@ -179,28 +258,37 @@ export class CloudflareClient {
       }
     }
 
-    const response = await fetch(url.toString(), {
+    const init: RequestInit = {
       method,
       headers: {
         Authorization: `Bearer ${this.apiToken}`,
         "Content-Type": "application/json",
       },
       body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    };
 
+    let response: Response;
     let data: CfResponse<T>;
-    try {
-      data = (await response.json()) as CfResponse<T>;
-    } catch {
-      throw new Error(`Cloudflare API 响应异常 (HTTP ${response.status})`);
+    if (method === "GET") {
+      ({ response, data } = await this.readJson<CfResponse<T>>(url.toString(), init));
+    } else {
+      response = await fetch(url.toString(), init);
+      try {
+        data = (await response.json()) as CfResponse<T>;
+      } catch {
+        throw new Error(`Cloudflare API 响应异常 (HTTP ${response.status})`);
+      }
     }
 
     if (!response.ok || !data.success) {
       const firstCode = (data.errors || [])[0]?.code;
-      const detail = (data.errors || [])
+      const detail = this.safeDetail((data.errors || [])
         .map((err) => err?.message)
         .filter(Boolean)
-        .join("; ");
+        .join("; "));
+      if (method === "GET") {
+        throw new CfReadError(cfFailureKind(response.status, detail, firstCode), `Cloudflare 读取失败 (HTTP ${response.status}${firstCode ? ` / code ${firstCode}` : ""})：${detail || "上游未提供原因"}`, { http_status: response.status, code: firstCode });
+      }
       // NOTE: Cloudflare 对「Token 无效」和「Token 缺少该操作的权限」一律返回
       // Authentication error (code 10000/9109)。最常见的原因是 Token 只有
       // Zone:Read（拉 zone 列表够用，一旦读写解析记录就被拒），或 zone 范围
@@ -246,16 +334,161 @@ export class CloudflareClient {
   /**
    * 分页列出账号下全部 zone
    */
-  async listZones(): Promise<CfZoneInfo[]> {
+  async listZones(accountId?: string): Promise<CfZoneInfo[]> {
     const zones: CfZoneInfo[] = [];
     let page = 1;
     while (page <= 50) {
-      const results = await this.request<CfZoneInfo[]>("GET", "/zones", { page, per_page: 50 });
+      const results = await this.request<CfZoneInfo[]>("GET", "/zones", { page, per_page: 50, "account.id": accountId });
       zones.push(...(results || []));
       if (!results || results.length < 50) break;
       page++;
     }
     return zones;
+  }
+
+  /**
+   * 在指定账号下创建一个 full setup zone（「域名委派到 Cloudflare」第一步）
+   *
+   * 🔴 前置条件由调用方保证：只有「可注册根域名」才建得成。Cloudflare 用 Public
+   *    Suffix List 判根域/子域 —— x.<root> 只有在 <root> 本身是 public suffix 时
+   *    才算根域（免费版可建 full zone + 委派 NS）；否则 CF 视为子域，Free/Pro 直接
+   *    拒绝，真委派要 Enterprise。DNSHE 的 9 个根里只有 4 个在 PSL 里。
+   *
+   * NOTE: 三个刻意的取舍
+   *   · `type: "full"` —— 本 zone 的权威解析交给 Cloudflare，这正是「委派」的含义；
+   *     partial（CNAME 接入）会保留原权威 DNS，与委派语义不符。
+   *   · 不传 `jump_start` —— 那会让 CF 自己去扫旧解析并预填记录，结果不可预期；
+   *     记录迁移必须走「用户确认后显式写入」，见 /api/domains/:id/delegate-cloudflare。
+   *   · 不读 `vanity_name_servers` —— 自定义 NS 是 Business+ 专属，本项目不涉及。
+   */
+  async createZone(name: string, accountId: string | number): Promise<CfZoneCreateResult> {
+    const result = await this.request<CfZoneInfo>("POST", "/zones", undefined, {
+      name: String(name || "").trim().toLowerCase(),
+      account: { id: String(accountId ?? "").trim() },
+      type: "full",
+    });
+    return {
+      id: String(result.id),
+      name: result.name || name,
+      status: result.status || "pending",
+      name_servers: (result.name_servers || []).map((host) => String(host)),
+    };
+  }
+
+  /**
+   * 读取单个 zone 的当前状态
+   *
+   * NOTE: 给「刷新状态」用。委派写完之后 CF 要自己去父区查 NS 才会把 zone 从
+   * pending 翻成 active，这个检测是异步的（分钟级），所以不做阻塞轮询 ——
+   * 用户点一次刷新就问一次，成本 1 个子请求。
+   */
+  /**
+   * 列出账号下的 D1 数据库（第24轮H：CF 免费额度页用）
+   *
+   * 🔴 第24轮K 纠正：这个接口**返回 `file_size`**，就是"已用存储"的真实值。
+   *    上一轮我写"CF 的 D1 API 不返回库大小"，是错的 —— 当时只看到了
+   *    uuid/name/created_at 就下了结论。返回体里还有 `version` / `num_tables`
+   *    / `file_size`；`file_size` 单位是字节。
+   */
+  async listD1Databases(
+    accountId: string | number
+  ): Promise<Array<{ uuid: string; name: string; created_at?: string; file_size?: number; num_tables?: number }>> {
+    const res = await this.request<
+      Array<{ uuid: string; name: string; created_at?: string; file_size?: number; num_tables?: number }>
+    >("GET", `/accounts/${accountId}/d1/database`);
+    return Array.isArray(res) ? res : [];
+  }
+
+  /**
+   * 列出账号下的 KV 命名空间（第24轮H）
+   *
+   * 🔴 第24轮K 纠正：列命名空间本身确实不返回用量，但 **KV 的读/写/删/列次数
+   *    可以走 GraphQL Analytics**（见 `cfGraphql`）—— 上一轮说"拿不到用量"不准确。
+   */
+  async listKvNamespaces(accountId: string | number): Promise<Array<{ id: string; title: string }>> {
+    const res = await this.request<Array<{ id: string; title: string }>>(
+      "GET",
+      `/accounts/${accountId}/storage/kv/namespaces`
+    );
+    return Array.isArray(res) ? res : [];
+  }
+
+  /** 列出 R2 桶（第24轮K：免费额度页全景用） */
+  async listR2Buckets(accountId: string | number): Promise<Array<{ name: string; creation_date?: string }>> {
+    const res = await this.request<{ buckets?: Array<{ name: string; creation_date?: string }> }>(
+      "GET",
+      `/accounts/${accountId}/r2/buckets`
+    );
+    return Array.isArray(res?.buckets) ? res.buckets : [];
+  }
+
+  /** 列出 Pages 项目（第24轮K） */
+  async listPagesProjects(accountId: string | number): Promise<Array<{ name: string; domains?: string[] }>> {
+    try {
+      const res = await this.request<Array<{ name: string; domains?: string[] }>>(
+        "GET",
+        `/accounts/${accountId}/pages/projects`
+      );
+      return Array.isArray(res) ? res : [];
+    } catch (error) {
+      // Pages 的 403 常见文案是 “Authentication error”，但它并不等价于 Token 失效：
+      // 账号范围或 Account → Cloudflare Pages → Read 缺失同样会返回 10000/9109。
+      // 保留原 HTTP/code 文本，同时给出可执行的修复方向，避免界面把资源误报成不存在。
+      if (error instanceof CfReadError && (error.kind === "permission" || error.kind === "authentication")) {
+        throw new CfReadError(error.kind,
+          `${error.message}。需核对 Pages Read/Write 与目标账号范围；此响应本身不能区分缺权限、旧 Token 或范围不符。`, error.detail);
+      }
+      throw error;
+    }
+  }
+
+  /** 列出 Workers 脚本（第24轮K） */
+  async listWorkerScripts(accountId: string | number): Promise<Array<{ id: string }>> {
+    const res = await this.request<Array<{ id: string }>>("GET", `/accounts/${accountId}/workers/scripts`);
+    return Array.isArray(res) ? res : [];
+  }
+
+  /** 列出 Tunnel（第24轮K） */
+  async listTunnels(accountId: string | number): Promise<Array<{ id: string; name: string; status?: string }>> {
+    const res = await this.request<Array<{ id: string; name: string; status?: string }>>(
+      "GET",
+      `/accounts/${accountId}/cfd_tunnel?is_deleted=false`
+    );
+    return Array.isArray(res) ? res : [];
+  }
+
+  /**
+   * 🔴 GraphQL Analytics —— 用量数据的**正式出口**（第24轮K 新增）
+   *
+   * 为什么必须有这一层：CF 的"用了多少"（请求数 / 行读行写 / KV 操作 / R2 存取
+   * / DNS 查询量）**不在 REST 里**，全部走 `POST /graphql`。上一轮我只探了 REST，
+   * 于是错误地得出"API 不暴露用量"的结论，还把它写进了页面文案。用户纠正后实测：
+   * 这些数据全都拿得到。
+   *
+   * 使用 Bearer Token，需 Account Analytics:Read 且资源范围覆盖目标账号。
+   * 数据集可用性、历史与单次查询范围另受产品和套餐限制，不能仅凭空集判断缺权限。
+   *
+   * @returns `data` 段；失败保留诊断，由采集层逐数据集容错。
+   */
+  async cfGraphql<T = unknown>(query: string): Promise<T | undefined> {
+    const { response, data: payload } = await this.readJson<{ data?: T; errors?: Array<{ message?: string; code?: number }> }>(`${this.baseUrl}/graphql`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    });
+    if (!response.ok || (payload.errors?.length ?? 0) > 0) {
+      const detail = this.safeDetail((payload.errors || []).map((error) => error.message).filter(Boolean).join("; "));
+      const code = payload.errors?.[0]?.code;
+      throw new CfReadError(cfFailureKind(response.status, detail, code), `Cloudflare Analytics 读取失败 (HTTP ${response.status}${code ? ` / code ${code}` : ""})：${detail || "上游未提供原因"}`, { http_status: response.status, code });
+    }
+    return payload.data;
+  }
+
+  async getZone(zoneId: string | number): Promise<CfZoneInfo> {
+    return this.request<CfZoneInfo>("GET", `/zones/${encodeURIComponent(String(zoneId))}`);
   }
 
   /**

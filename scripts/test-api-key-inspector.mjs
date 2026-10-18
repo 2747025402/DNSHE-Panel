@@ -1,0 +1,75 @@
+/* API 密钥设计风检查器回归：合成凭据，仅验证浏览器交互，不连接远端业务。 */
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+
+const base = new URL(process.env.BASE || 'http://127.0.0.1:3012');
+assert(['127.0.0.1', 'localhost'].includes(base.hostname));
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, serviceWorkers: 'block' });
+await context.addInitScript(() => {
+  localStorage.setItem('DNSHE_BACKEND_URL', '/');
+  localStorage.setItem('DNSHE_INTERFACE_STYLE', 'design');
+  localStorage.setItem('DNSHE_THEME', 'light');
+  sessionStorage.setItem('DNSHE_SESSION', 'synthetic-not-valid-for-any-server');
+});
+await context.route('**/*', async (route) => {
+  const req = route.request();
+  const url = new URL(req.url());
+  if (url.origin !== base.origin) return route.abort();
+  if (!url.pathname.startsWith('/api/')) return route.continue();
+  if (req.method() === 'POST' && url.pathname === '/api/keys/backfill') return route.fulfill({ json: { success: true, data: { filled: 0 } } });
+  if (req.method() === 'POST' && url.pathname === '/api/keys/reveal') return route.fulfill({ json: { success: true, api_secret: 'synthetic-secret-value' } });
+  if (req.method() !== 'GET') return route.fulfill({ status: 405, json: { success: false } });
+  let body = { success: true };
+  if (url.pathname === '/api/auth/status') body = { success: true, initialized: true, two_fa_enabled: false };
+  else if (url.pathname === '/api/auth/account') body = { success: true, username: 'synthetic' };
+  else if (url.pathname === '/api/accounts') body = { success: true, accounts: [{ id: 1, alias: '主账号', api_key: 'cfsd_synthetic_key', provider: 'dnshe', created_at: '2026-09-01' }] };
+  else if (url.pathname === '/api/domains') body = { success: true, domains: [] };
+  else if (url.pathname === '/api/settings') body = { success: true, settings: {}, configured: {} };
+  else if (url.pathname === '/api/overview') body = { success: true, domains: { total: 0, active: 0, expired: 0, expiring_soon: 0, delegated: 0, not_delegated: 0 }, accounts: { total: 1, dnshe: 1, cloudflare: 0 }, quota: { total: 0, used: 0, available: 0, failed: 0, accounts: [] }, assist: null };
+  else if (url.pathname === '/api/keys') {
+    const key = { key_id: 9, key_name: 'Preview Key', api_key: 'cfsd_synthetic_key', status: 'active', request_count: 12, last_used_at: '2026-10-17 10:00', remote_created_at: '2026-09-01', has_secret: true };
+    body = url.searchParams.get('account_id') === '1' ? { success: true, keys: [key] } : { success: true, groups: [{ account_id: 1, alias: '主账号', keys: [key] }], keys: [] };
+  }
+  else if (url.pathname === '/api/assist/status') body = { success: true, accounts: [], history: [] };
+  else if (url.pathname === '/api/quota') body = { success: true, quotas: [] };
+  else if (url.pathname === '/api/logs') body = { success: true, logs: [] };
+  else if (url.pathname === '/api/ddns') body = { success: true, bindings: [] };
+  else if (url.pathname === '/api/cf/quota') body = { success: true, accounts: [] };
+  else if (url.pathname === '/api/dns/ns') body = { success: true, records: [] };
+  return route.fulfill({ json: body });
+});
+const page = await context.newPage();
+await page.goto(new URL('/#apikeys', base).href, { waitUntil: 'networkidle' });
+await page.locator('.editorial-key-layout').waitFor();
+assert.equal(await page.locator('.editorial-key-inspector').count(), 0, '未选择时不预留空检查器');
+const beforeWidth = await page.locator('.editorial-ledger').evaluate(el => el.getBoundingClientRect().width);
+await page.getByRole('button', { name: '查看 Preview Key', exact: true }).click();
+await page.getByRole('button', { name: '显示 API Secret' }).waitFor();
+await page.waitForFunction(width => document.querySelector('.editorial-ledger').getBoundingClientRect().width < width - 100, beforeWidth);
+assert.match(await page.locator('.editorial-key-layout').evaluate(el => getComputedStyle(el).transitionProperty), /grid-template-columns/);
+assert.equal(await page.locator('.editorial-key-inspector').evaluate(el => getComputedStyle(el).animationName), 'editorial-key-in');
+assert.equal(await page.locator('.editorial-key-inspector').getByText('cfsd_synthetic_key', { exact: true }).count(), 1);
+assert.equal(await page.getByText('••••••••••••', { exact: true }).count(), 1);
+await page.getByRole('button', { name: '显示 API Secret' }).click();
+await page.getByText('synthetic-secret-value', { exact: true }).waitFor();
+assert.equal(await page.getByText('synthetic-secret-value', { exact: true }).count(), 1);
+await page.getByRole('button', { name: '隐藏 API Secret' }).click();
+assert.equal(await page.getByText('••••••••••••', { exact: true }).count(), 1);
+await page.getByRole('button', { name: '关闭密钥详情' }).click();
+await page.locator('.editorial-key-inspector').waitFor({ state: 'detached' });
+await page.waitForFunction(width => Math.abs(document.querySelector('.editorial-ledger').getBoundingClientRect().width - width) < 2, beforeWidth);
+await page.getByRole('button', { name: '查看 Preview Key', exact: true }).focus();
+await page.keyboard.press('Enter');
+await page.getByRole('button', { name: '显示 API Secret' }).waitFor();
+await page.keyboard.press('Escape');
+await page.locator('.editorial-key-inspector').waitFor({ state: 'detached' });
+await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '查看 Preview Key');
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.getByRole('button', { name: '查看 Preview Key', exact: true }).click();
+await page.locator('.editorial-key-inspector').waitFor();
+assert.equal(await page.locator('.editorial-key-inspector').evaluate(el => getComputedStyle(el).animationName), 'none');
+await page.keyboard.press('Escape');
+await page.locator('.editorial-key-inspector').waitFor({ state: 'detached' });
+await browser.close();
+console.log('PASS API 密钥二级检查器：按需、查看、显示、隐藏、关闭与键盘归焦可用');

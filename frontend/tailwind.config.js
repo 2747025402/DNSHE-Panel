@@ -59,6 +59,23 @@ export default {
         "content-secondary": "var(--text-secondary)",
         "content-muted": "var(--text-muted)",
         accent: "var(--accent)",
+        /*
+         * 第23轮「去蓝紫」重制：主色不再有色相。
+         *
+         * 原先 --accent 是 #6366f1（indigo），全站 285 处 indigo-* + 74 处 sky-* 都是它
+         * 撑起来的 —— 用户判断「蓝色紫色是 AI 污染导致的，不是人的审美」。
+         * 瑞士国际主义的要求是「默认黑白灰，颜色只表达状态、选择或明确品牌语义」，
+         * 所以主色改成**中性色**：亮色下近黑、暗色下近白，靠明度对比建立层级。
+         *
+         * 🔴 用 `rgb(var(--x) / <alpha-value>)` 而不是 `var(--x)`：
+         *    只有这样 `bg-primary/10`、`border-primary/50` 这类带透明度的写法才能生成
+         *    合法 CSS（直接对 hex 变量做 alpha 会被 Tailwind v3 丢掉，静默失效）。
+         *    因此 index.css 里必须存**空格分隔的 RGB 三通道**，不是 hex。
+         */
+        primary: "rgb(var(--accent-rgb) / <alpha-value>)",
+        "primary-fg": "rgb(var(--accent-fg-rgb) / <alpha-value>)",
+        "primary-hover": "rgb(var(--accent-hover-rgb) / <alpha-value>)",
+        "primary-soft": "rgb(var(--accent-soft-rgb) / <alpha-value>)",
         // 自定义一些高端、质感更好的暗色系调色板（保留兼容）
         dark: {
           50: "#f6f6f9",
