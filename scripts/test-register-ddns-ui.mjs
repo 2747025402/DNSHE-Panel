@@ -71,6 +71,7 @@ const page = await context.newPage();
 page.setDefaultTimeout(9000);
 page.on("pageerror", (error) => report.pageErrors.push(error.message));
 let whoisResponseMode = "available";
+let quotaMode = "available";
 
 await page.route("**/*", async (route) => {
   const request = route.request();
@@ -80,10 +81,27 @@ await page.route("**/*", async (route) => {
   report.requests.push({ method: request.method(), path: url.pathname });
   if (url.pathname === "/api/auth/status") return route.fulfill({ json: { initialized: true, two_fa_enabled: false } });
   if (url.pathname === "/api/auth/account") return route.fulfill({ json: { success: true, username: "合成管理员", two_fa_enabled: false } });
-  if (url.pathname === "/api/accounts") return route.fulfill({ json: { success: true, accounts: [{ id: 1, alias: "合成账号", provider: "dnshe", api_key: "synthetic" }] } });
+  if (url.pathname === "/api/accounts") return route.fulfill({ json: { success: true, accounts: [
+    { id: 1, alias: "合成账号", provider: "dnshe", api_key: "synthetic" },
+    ...(quotaMode === "mixed" ? [{ id: 2, alias: "剩余额度账号", provider: "dnshe", api_key: "synthetic-2" }] : []),
+  ] } });
   if (url.pathname === "/api/domains") return route.fulfill({ json: { success: true, domains: [], last_sync: { at: null, type: "empty" } } });
   if (url.pathname === "/api/overview") return route.fulfill({ json: { success: true, domains: { total: 0, active: 0, expired: 0, expiring_soon: 0, delegated: 0, not_delegated: 0 }, accounts: { total: 1, dnshe: 1, cloudflare: 0 }, quota: { total: 0, used: 0, available: 0, failed: 0, accounts: [] }, assist: null } });
-  if (url.pathname === "/api/quota") return route.fulfill({ json: { success: true, quotas: [] } });
+  if (url.pathname === "/api/quota") return route.fulfill({ json: {
+    success: true,
+    quotas: quotaMode === "null"
+      ? [{ account_id: 1, alias: "合成账号", used: null, total: null, available: null }]
+      : quotaMode === "error"
+      ? [{ account_id: 1, alias: "合成账号", used: 0, total: 0, available: 0, error: "合成读取失败" }]
+      : quotaMode === "mixed"
+      ? [
+        { account_id: 1, alias: "合成账号", used: 5, total: 5, available: 0 },
+        { account_id: "2", alias: "剩余额度账号", used: 2, total: 5, available: 3 },
+      ]
+      : quotaMode === "exhausted"
+      ? [{ account_id: 1, alias: "合成账号", used: 5, base: 5, invite_bonus: 0, total: 5, available: 0 }]
+      : [{ account_id: 1, alias: "合成账号", used: 1, base: 5, invite_bonus: 0, total: 5, available: 4 }]
+  } });
   if (url.pathname === "/api/assist/status") return route.fulfill({ json: { success: true, accounts: [], history: [] } });
   if (url.pathname === "/api/keys") return route.fulfill({ json: { success: true, groups: [], keys: [] } });
   if (url.pathname === "/api/logs") return route.fulfill({ json: { success: true, logs: [] } });
@@ -112,7 +130,64 @@ try {
     await registerMain.locator("select").first().selectOption("us.ci");
     await registerMain.getByRole("button", { name: "WHOIS 查重", exact: true }).click();
     await registerMain.getByText("尚未注册", { exact: true }).waitFor();
+    assert.match(
+      await registerMain.locator("select option").filter({ hasText: "合成账号" }).first().textContent(),
+      /已用\s*1\s*·\s*剩余\s*4/
+    );
+    assert.equal(await registerMain.locator('#register-account-quota-hint').count(), 0, '账号下方不应出现额外配额备注');
+    const accountBox = await registerMain.locator('select').filter({ has: page.locator('option', { hasText: '合成账号' }) }).boundingBox();
+    const registerBox = await registerMain.getByRole('button', { name: '一键注册该域名', exact: true }).boundingBox();
+    assert(Math.abs(accountBox.y - registerBox.y) <= 1, '账号选择框与注册按钮上边缘必须对齐');
+    assert(Math.abs(accountBox.height - registerBox.height) <= 1, '账号选择框与注册按钮必须同高');
     assert.equal(await registerMain.getByRole("region", { name: "查询历史" }).getByText("demo-check.us.ci", { exact: true }).count(), 1);
+  });
+
+  await check("可注册结果按账号配额禁用注册目标并提示已用与剩余", async () => {
+    quotaMode = "exhausted";
+    await page.reload({ waitUntil: "networkidle" });
+    await registerMain.getByRole("button", { name: /精确单域名查重/ }).click();
+    await registerMain.locator("input").first().fill("quota-check");
+    await registerMain.getByRole("button", { name: "WHOIS 查重", exact: true }).click();
+    await registerMain.getByText("尚未注册", { exact: true }).waitFor();
+    const accountOption = registerMain.locator("select option").filter({ hasText: "合成账号" }).first();
+    assert.equal(await accountOption.isDisabled(), true);
+    assert.match(await accountOption.textContent(), /已用\s*5\/5\s*·\s*配额用尽/);
+    assert.equal(await registerMain.locator('#register-target-account').inputValue(), "");
+    assert.equal(await registerMain.getByRole("button", { name: "一键注册该域名", exact: true }).isDisabled(), true);
+    assert.equal(await registerMain.locator('#register-target-account option[value=""]').textContent(), "所有账号配额均已用尽");
+    quotaMode = "available";
+    await page.reload({ waitUntil: "networkidle" });
+  });
+
+  await check("未知或读取失败的配额不误判用尽", async () => {
+    for (const mode of ["null", "error"]) {
+      quotaMode = mode;
+      await page.reload({ waitUntil: "networkidle" });
+      await registerMain.getByRole("button", { name: /精确单域名查重/ }).click();
+      await registerMain.locator("input").first().fill(`quota-${mode}`);
+      await registerMain.getByRole("button", { name: "WHOIS 查重", exact: true }).click();
+      await registerMain.getByText("尚未注册", { exact: true }).waitFor();
+      const option = registerMain.locator('#register-target-account option').filter({ hasText: "合成账号" });
+      assert.equal(await option.isDisabled(), false);
+      assert.match(await option.textContent(), mode === "error" ? /配额读取失败/ : /配额未读取/);
+      assert.equal(await registerMain.getByRole("button", { name: "一键注册该域名", exact: true }).isEnabled(), true);
+    }
+  });
+
+  await check("混合额度自动选择有剩余的账号并兼容字符串账号ID", async () => {
+    quotaMode = "mixed";
+    await page.reload({ waitUntil: "networkidle" });
+    await registerMain.getByRole("button", { name: /精确单域名查重/ }).click();
+    await registerMain.locator("input").first().fill("quota-mixed");
+    await registerMain.getByRole("button", { name: "WHOIS 查重", exact: true }).click();
+    await registerMain.getByText("尚未注册", { exact: true }).waitFor();
+    const select = registerMain.locator('#register-target-account');
+    await page.waitForFunction(() => document.querySelector('#register-target-account')?.value === "2");
+    assert.equal(await select.locator('option[value="1"]').isDisabled(), true);
+    assert.equal(await select.locator('option[value="2"]').isEnabled(), true);
+    assert.match(await select.locator('option[value="2"]').textContent(), /已用 2 · 剩余 3/);
+    quotaMode = "available";
+    await page.reload({ waitUntil: "networkidle" });
   });
 
   await check("账号默认全选，取消全部或最后一项不会意外恢复全选，空范围不能启动", async () => {
@@ -317,7 +392,7 @@ try {
     assert((await ddnsMain.getByText("仅演示 · 无真实令牌", { exact: true }).count()) === 2);
   });
 } finally {
-  report.passed = report.tests.length === 13 && report.tests.every((test) => test.passed) && report.pageErrors.length === 0;
+  report.passed = report.tests.length === 16 && report.tests.every((test) => test.passed) && report.pageErrors.length === 0;
   await browser.close();
   if (devServer?.pid && process.platform === "win32") {
     // 同步等待进程树退出，避免测试结束后留下占用 3016 的 Vite 子进程。

@@ -3292,6 +3292,9 @@ export default function App() {
       }
     } else if (activeTab === "quota") {
       fetchIfStale("quota", 60_000, fetchQuotas);
+    } else if (activeTab === "register") {
+      // 注册结果出现后要立即给出真实账号额度；没有额度快照时不凭空禁用账号。
+      fetchIfStale("quota", 60_000, fetchQuotas);
     } else if (activeTab === "settings") {
       fetchIfStale("settings", Infinity, fetchSettings);
       fetchIfStale("account", Infinity, fetchAccountInfo);
@@ -3318,6 +3321,48 @@ export default function App() {
     () => accounts.filter((a) => a.provider !== "cloudflare"),
     [accounts]
   );
+
+  /** 注册目标账号的可用额度口径：未读取或读取失败时保持可选，但明确提示未知。 */
+  const registerAccountQuotaOptions = useMemo(() => dnsheAccounts.map((account) => {
+    const quota = quotas.find((item) => Number(item.account_id) === account.id) || null;
+    const readAmount = (value: unknown) => {
+      if (typeof value !== "number" && (typeof value !== "string" || !value.trim())) return NaN;
+      const amount = Number(value);
+      return Number.isFinite(amount) && amount >= 0 ? amount : NaN;
+    };
+    const used = readAmount(quota?.used);
+    const total = readAmount(quota?.total);
+    const available = readAmount(quota?.available);
+    const loaded = Boolean(
+      quota &&
+      !quota.error &&
+      Number.isFinite(used) &&
+      Number.isFinite(total) &&
+      Number.isFinite(available)
+    );
+    return {
+      account,
+      quota,
+      loaded,
+      used: loaded ? Math.max(0, used) : null,
+      total: loaded ? Math.max(0, total) : null,
+      available: loaded ? Math.max(0, available) : null,
+      exhausted: loaded && available <= 0,
+    };
+  }), [dnsheAccounts, quotas]);
+
+  const registerableAccounts = useMemo(
+    () => registerAccountQuotaOptions.filter((item) => !item.exhausted),
+    [registerAccountQuotaOptions]
+  );
+
+  // 配额加载完成后，若之前默认选中的账号已用尽，自动移到第一个仍可注册的账号。
+  useEffect(() => {
+    if (whoisResult?.registrationOutcome !== "available") return;
+    const selected = registerAccountQuotaOptions.find((item) => item.account.id === registerAccountId);
+    if (selected && !selected.exhausted) return;
+    setRegisterAccountId(registerableAccounts[0]?.account.id ?? "");
+  }, [whoisResult?.registrationOutcome, registerAccountId, registerAccountQuotaOptions, registerableAccounts]);
 
   // Cloudflare 账号（概览页「Cloudflare 账号」卡片要用；概览数据未回来时做兜底）
   const cfAccounts = useMemo(
@@ -5776,6 +5821,11 @@ export default function App() {
       showToast("error", "请先选择用于注册域名的 API 账号！");
       return;
     }
+    const selectedQuota = registerAccountQuotaOptions.find((item) => item.account.id === registerAccountId);
+    if (selectedQuota?.exhausted) {
+      showToast("warning", `账号「${selectedQuota.account.alias}」配额已用尽，请选择仍有剩余配额的账号。`);
+      return;
+    }
 
     setActionLoading("register-subdomain");
     try {
@@ -5794,6 +5844,7 @@ export default function App() {
         setWhoisResult(null);
         setSearchSubdomain("");
         fetchDomains();
+        void fetchQuotas(true);
         setActiveTab("domains");
       } else {
         showToast("error", data.message || "注册子域名失败，请重试");
@@ -8107,30 +8158,36 @@ export default function App() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 items-end">
                           <div className="space-y-2">
-                            <label className="block text-xs font-semibold text-content-secondary">
+                            <label htmlFor="register-target-account" className="block text-xs font-semibold text-content-secondary">
                               选择注册的目标账号:
                             </label>
                             <select
                               value={registerAccountId}
-                              onChange={(e) => setRegisterAccountId(Number(e.target.value))}
+                              onChange={(e) => setRegisterAccountId(e.target.value ? Number(e.target.value) : "")}
+                              id="register-target-account"
                               className="w-full bg-elevated border border-border-base focus:border-primary rounded px-4 h-10 text-sm text-content-primary focus:outline-none"
                             >
-                              {dnsheAccounts.length === 0 ? (
+                              {registerAccountQuotaOptions.length === 0 ? (
                                 <option value="">暂无可用的绑定账号</option>
-                              ) : (
-                                dnsheAccounts.map((acc) => (
-                                  <option key={acc.id} value={acc.id}>
-                                    {acc.alias} (ID: {acc.id})
+                              ) : (<>
+                                {registerableAccounts.length === 0 && <option value="" disabled>所有账号配额均已用尽</option>}
+                                {registerAccountQuotaOptions.map((item) => (
+                                  <option key={item.account.id} value={item.account.id} disabled={item.exhausted}>
+                                    {item.account.alias}（ID: {item.account.id}） · {item.loaded
+                                      ? item.exhausted
+                                        ? `已用 ${item.used}/${item.total} · 配额用尽`
+                                        : `已用 ${item.used} · 剩余 ${item.available}`
+                                      : item.quota?.error ? "配额读取失败" : "配额未读取"}
                                   </option>
-                                ))
-                              )}
+                                ))}
+                              </>)}
                             </select>
                           </div>
 
                           <div>
                             <button
                               onClick={handleRegisterSubdomain}
-                              disabled={actionLoading === "register-subdomain" || dnsheAccounts.length === 0}
+                              disabled={actionLoading === "register-subdomain" || registerableAccounts.length === 0 || !registerAccountId}
                               className="w-full bg-primary hover:bg-primary-hover border border-transparent text-primary-fg font-bold text-sm px-6 h-10 rounded transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <Plus className="w-4 h-4" />
