@@ -6,6 +6,7 @@ import type { DBDomain } from "./db";
 import { DNSHEClient } from "./dnshe";
 import type { ApiKeyInfo, CreateDnsRecordParams, DnsRecordInfo, UpdateDnsRecordParams } from "./dnshe";
 import { CloudflareClient, CF_READ_BUDGET_EXHAUSTED, mapZoneToUpstream, zoneIdToNumericId } from "./cloudflare";
+import type { CfZoneInfo } from "./cloudflare";
 import { collectAccountUsage, createUsageLimiter, CF_FREE_LIMITS } from "./cfusage";
 import { parseCfUsageSnapshot, refreshCfUsageOnce, retainCfUsageOnFailure } from "./cfusage-cache";
 import type { CfUsagePayload, CfUsageSnapshot } from "./cfusage-cache";
@@ -1514,6 +1515,14 @@ app.post("/api/domains/:id/delegate-cloudflare", async (c) => {
       400
     );
   }
+  // 本地主键仅用于查找绑定；上游建 zone 必须使用绑定保存的真实 Cloudflare account tag。
+  const cloudflareAccountId = /^cf:([a-f\d]{32})$/i.exec(String(cfAccount.api_key || "").trim())?.[1].toLowerCase();
+  if (!cloudflareAccountId) {
+    return c.json(
+      errorRes("未能确认所选 Cloudflare 账号的 Account ID，请重新绑定该账号后重试（DNSHE 侧记录未改动）", "cf_account_identifier_missing"),
+      400
+    );
+  }
   const { client: cfClient } = await dbManager.getClientForAccount(cfAccount.id);
   if (!(cfClient instanceof CloudflareClient)) {
     return c.json(errorRes("选中的账号不是 Cloudflare 账号", "cf_account_required"), 400);
@@ -1524,7 +1533,10 @@ app.post("/api/domains/:id/delegate-cloudflare", async (c) => {
   let snapshot: DnsRecordInfo[] = [];
   try {
     const dnsRes = await dnsheClient.listDnsRecords(domainId);
-    if (dnsRes && dnsRes.success && Array.isArray(dnsRes.records)) snapshot = dnsRes.records;
+    if (!dnsRes?.success || !Array.isArray(dnsRes.records)) {
+      throw new Error("解析记录响应不完整，无法确认现有记录");
+    }
+    snapshot = dnsRes.records;
   } catch (e) {
     const msg = e instanceof Error ? e.message : "未知错误";
     return c.json(
@@ -1539,12 +1551,21 @@ app.post("/api/domains/:id/delegate-cloudflare", async (c) => {
   let zone: { id: string; name: string; status: string; name_servers: string[] };
   let zoneReused = false;
   try {
-    zone = await cfClient.createZone(domainInfo.full_domain, cfAccount.id);
+    zone = await cfClient.createZone(domainInfo.full_domain, cloudflareAccountId);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "创建 zone 失败";
-    const existing = /already exists|1061/i.test(msg)
-      ? (await cfClient.listZones()).find((z) => String(z.name || "").toLowerCase() === domainInfo.full_domain.toLowerCase())
-      : undefined;
+    let existing: CfZoneInfo | undefined;
+    if (/already exists|1061/i.test(msg)) {
+      try {
+        const matches = (await cfClient.listZones(cloudflareAccountId)).filter((z) =>
+          String(z.name || "").toLowerCase() === domainInfo.full_domain.toLowerCase() &&
+          String(z.account?.id || "").trim().toLowerCase() === cloudflareAccountId
+        );
+        if (matches.length === 1) existing = matches[0];
+      } catch {
+        // 无法读取或确认唯一归属时不复用，保持 DNSHE 零修改并返回受控失败。
+      }
+    }
     if (!existing) {
       return c.json(
         errorRes(`在 Cloudflare 创建 zone 失败（DNSHE 侧记录未改动）：${msg}`, "zone_create_failed"),

@@ -361,10 +361,14 @@ export class CloudflareClient {
    *     记录迁移必须走「用户确认后显式写入」，见 /api/domains/:id/delegate-cloudflare。
    *   · 不读 `vanity_name_servers` —— 自定义 NS 是 Business+ 专属，本项目不涉及。
    */
-  async createZone(name: string, accountId: string | number): Promise<CfZoneCreateResult> {
+  async createZone(name: string, accountId: string): Promise<CfZoneCreateResult> {
+    const cloudflareAccountId = String(accountId ?? "").trim();
+    if (!/^[a-f\d]{32}$/i.test(cloudflareAccountId)) {
+      throw new Error("Cloudflare Account ID 必须为 32 位十六进制标识，不能使用面板账号 ID");
+    }
     const result = await this.request<CfZoneInfo>("POST", "/zones", undefined, {
       name: String(name || "").trim().toLowerCase(),
-      account: { id: String(accountId ?? "").trim() },
+      account: { id: cloudflareAccountId },
       type: "full",
     });
     return {

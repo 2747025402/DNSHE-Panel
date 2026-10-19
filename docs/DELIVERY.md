@@ -2,6 +2,10 @@
 
 ## 当前状态
 
+2026-10-20：一键委派已改用 Cloudflare 绑定中的真实 Account ID，不再传面板账号主键。缺失标识、快照未确认、已有 Zone 归属不符或不唯一时中止，避免误修改 DNSHE 记录；客户端也校验 Account ID 格式。本轮无数据库迁移、前端改动或额外账号读取权限。
+
+定向回归：`npm run test:delegate:cf`，真实 Worker 路由、内存 SQLite、合成外部服务 16/16 通过。另已通过 Worker／Node 类型检查、Node 构建、SQLite 22/22、local KV 4/4、权限合同 3/3、用量后端 22/22（含 workerd）、预览隔离 9/9、登录审计 6/6。真实 Cloudflare 建 Zone、DNSHE 写 NS 和公网激活不属于本轮生产只读验收；不得以离线通过宣称实际委派已完成。
+
 注册页已加入账号配额选择约束：账号选项内显示已用／剩余或用尽状态，不额外添加规则备注；已用尽账号不可选，未知或读取失败保持独立语义，全部用尽时禁止提交。定向回归为 `npm run test:register-ddns:ui`，包含选择框与注册按钮对齐检查。
 
 本仓库当前交付包含两条彼此隔离的路径：
@@ -57,6 +61,7 @@ npm run verify:node
 
 ```powershell
 git diff --check
+npm run test:delegate:cf
 npm run test:local-kv
 npm run build:node
 npm run verify:node

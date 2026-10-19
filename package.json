@@ -18,6 +18,7 @@
     "test:overview:layout": "node scripts/test-overview-context-layout.mjs",
     "test:usage:backend": "node scripts/test-cf-usage-backend.mjs",
     "test:cf:permissions": "node scripts/test-cf-permissions.mjs",
+    "test:delegate:cf": "node scripts/test-delegate-cloudflare-backend.mjs",
     "test:cf:diagnostics": "node scripts/test-cf-diagnostics-ui.mjs",
     "test:preview": "node scripts/test-preview-boundaries.mjs",
     "test:auth:logs": "node scripts/test-auth-logs.mjs",
