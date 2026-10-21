@@ -7,7 +7,7 @@ const PAGE_STORAGE_KEY = "DNSHE_INTERFACE_STYLE_PAGES";
 const styleLabels: Record<InterfaceStyle, string> = { design: "设计", data: "数据", cards: "卡片" };
 const normalizeStyle = (value: unknown): InterfaceStyle => value === "data" || value === "cards" ? value : "design";
 
-const CARD_PAGES = ["dashboard", "domains", "cloudflare", "assist", "accounts", "apikeys", "quota", "ddns"];
+const CARD_PAGES = ["dashboard", "domains", "cloudflare", "assist", "accounts", "apikeys", "quota", "ddns", "renewal"];
 const LEGACY_VIEWS: Record<string, string> = { dashboard: "OVERVIEW", domains: "DOMAIN", cloudflare: "CF", assist: "ASSIST", accounts: "ACCOUNT", apikeys: "KEY", quota: "QUOTA" };
 export const pageStyles = (page: string): InterfaceStyle[] => CARD_PAGES.includes(page) ? ["design", "data", "cards"] : ["design", "data"];
 export const effectiveStyle = (style: InterfaceStyle, page: string): InterfaceStyle => style === "cards" && !CARD_PAGES.includes(page) ? "data" : style;
@@ -17,7 +17,7 @@ export type PageStylePreferences = Record<string, InterfaceStyle>;
 export const STYLE_PAGE_LABELS: Record<string, string> = {
   dashboard: "概览", domains: "域名列表", cloudflare: "Cloudflare", assist: "域名助力",
   accounts: "账号管理", apikeys: "API 密钥", register: "注册 / 查重", quota: "账户配额",
-  ddns: "动态 DNS", cfquota: "CF 免费额度", logs: "运行日志", settings: "设置",
+  ddns: "动态 DNS", renewal: "自动续期", cfquota: "CF 免费额度", logs: "运行日志", settings: "设置",
 };
 export const STYLE_PAGE_KEYS = Object.keys(STYLE_PAGE_LABELS);
 

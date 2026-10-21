@@ -2,6 +2,10 @@
 
 ## 当前状态
 
+2026-10-22：修复注册后缓存延迟与自动续期边界，并新增独立“自动续期”工作页。注册后对上游列表做有界重试，仍未出现时通过 Worker waitUntil 继续后台重试，前端轮询本地缓存并明确显示待同步；续期成功但缺少 `new_expires_at` 不再覆盖本地旧值，已过期域名进入候选，缺少到期时间仍保持未知。本轮源码、README 与 Release 说明已整理，生产实例不重复部署。
+
+新增定向回归：`npm run test:renewal:rules`（8/8），覆盖缺失日期、进入阈值、越过阈值、已过期及续期响应缺失字段。委派 16/16、SQLite 22/22、local KV 4/4、登录审计 6/6、预览隔离 9/9、注册/DDNS 16/16 均通过；前后端构建均通过。Pages 13/13 路由及续期三模式×两宽度通过，无外部请求和页面/控制台错误，六张深色截图已目视。真实域名注册／续期写入未执行。
+
 2026-10-20：一键委派已改用 Cloudflare 绑定中的真实 Account ID，不再传面板账号主键。缺失标识、快照未确认、已有 Zone 归属不符或不唯一时中止，避免误修改 DNSHE 记录；客户端也校验 Account ID 格式。本轮无数据库迁移、前端改动或额外账号读取权限。
 
 定向回归：`npm run test:delegate:cf`，真实 Worker 路由、内存 SQLite、合成外部服务 16/16 通过。另已通过 Worker／Node 类型检查、Node 构建、SQLite 22/22、local KV 4/4、权限合同 3/3、用量后端 22/22（含 workerd）、预览隔离 9/9、登录审计 6/6。真实 Cloudflare 建 Zone、DNSHE 写 NS 和公网激活不属于本轮生产只读验收；不得以离线通过宣称实际委派已完成。
@@ -17,7 +21,7 @@ Pages 演示入口：<https://shiranzby.github.io/DNSHE-Panel/>。
 
 ## Pages 演示内容
 
-- 真实 React 前端的 12 个 hash 路由：概览、域名列表、Cloudflare、域名助力、账号管理、API 密钥、注册查重、账户配额、动态 DNS、CF 用量、运行日志和设置。
+- 真实 React 前端的 13 个 hash 路由：概览、域名列表、Cloudflare、域名助力、账号管理、API 密钥、注册查重、账户配额、动态 DNS、自动续期、CF 用量、运行日志和设置。
 - 设计风、数据风、卡片风三种平级切换。
 - 浅色／深色主题、侧边栏导航、页面切换和键盘可达控件。
 - 所有样本数据均为合成数据；演示不读取 Cookie、Token、本地文件或远程 API。页面组件、CSS、状态和交互来自 `frontend/src`，不是独立重绘页面。
@@ -62,9 +66,12 @@ npm run verify:node
 ```powershell
 git diff --check
 npm run test:delegate:cf
+npm run test:renewal:rules
 npm run test:local-kv
 npm run build:node
 npm run verify:node
+npm run build:selfhost --prefix frontend
+npm run build:pages --prefix frontend
 ```
 
 Pages 工作流安装 `frontend` 依赖，使用 `VITE_STATIC_DEMO=1` 构建真实前端，再上传 `frontend/dist`。

@@ -74,6 +74,7 @@ import "./overview-workspace.css";
 import "./assist-workspace.css";
 import { AssistSummary, AssistDirectory } from "./AssistPanels";
 import { DdnsDirectory, LogsWorkspace } from "./FlowWorkspaces";
+import { RenewalPage } from "./RenewalPage";
 import { BATCH_MAX_CONCURRENCY, BATCH_MAX_TASKS, boundedWorkers, numericRule, reserveAccountStart, type BatchConfig } from "./BatchScanModel";
 import {
   loadWordBanks,
@@ -121,7 +122,7 @@ export interface ApiResponse {
 }
 
 // 域名接口
-interface Domain {
+export interface Domain {
   id: number;
   account_id: number;
   account_alias: string;
@@ -574,6 +575,7 @@ const SEARCH_CONFIG: Record<string, { placeholder: string; enabled: boolean }> =
   register: { placeholder: "搜索查重结果或历史", enabled: true },
   quota: { placeholder: "搜索账号", enabled: true },
   ddns: { placeholder: "搜索绑定域名或账号", enabled: true },
+  renewal: { placeholder: "搜索续期域名或账号", enabled: true },
   cfquota: { placeholder: "搜索 Cloudflare 账号", enabled: true },
   logs: { placeholder: "搜索日志内容", enabled: true },
   /*
@@ -694,8 +696,8 @@ function maskApiKey(key?: string | null): string {
 
 export default function App() {
   // 当前处于的选项卡（通过 URL hash 持久化，刷新/前进后退保持所在页面）
-  type TabKey = "dashboard" | "domains" | "cloudflare" | "assist" | "accounts" | "apikeys" | "register" | "quota" | "ddns" | "cfquota" | "logs" | "settings";
-  const TAB_KEYS: TabKey[] = ["dashboard", "domains", "cloudflare", "assist", "accounts", "apikeys", "register", "quota", "ddns", "cfquota", "logs", "settings"];
+  type TabKey = "dashboard" | "domains" | "cloudflare" | "assist" | "accounts" | "apikeys" | "register" | "quota" | "ddns" | "renewal" | "cfquota" | "logs" | "settings";
+  const TAB_KEYS: TabKey[] = ["dashboard", "domains", "cloudflare", "assist", "accounts", "apikeys", "register", "quota", "ddns", "renewal", "cfquota", "logs", "settings"];
   const tabFromHash = (): TabKey => {
     const h = window.location.hash.replace(/^#\/?/, "") as TabKey;
     return TAB_KEYS.includes(h) ? h : "dashboard";
@@ -3280,6 +3282,10 @@ export default function App() {
       fetchIfStale("overview", 30_000, fetchOverview);
     } else if (activeTab === "ddns") {
       void fetchDdns();
+    } else if (activeTab === "renewal") {
+      fetchIfStale("domains", 30_000, () => void fetchDomains());
+      fetchIfStale("logs", 30_000, () => void fetchLogs());
+      fetchIfStale("settings", Infinity, fetchSettings);
     } else if (activeTab === "cfquota") {
       /* 🔴 第24轮O：进页**不再无条件重拉** —— 登录时已后台预取过。
          5 分钟内直接用缓存（用户不会每次进来都盯着转圈）；
@@ -3877,6 +3883,7 @@ export default function App() {
       if (data.success) {
         showToast("success", `域名 [${domain.full_domain}] 手动续期成功！新有效期至 ${data.new_expires_at}`);
         fetchDomains();
+        void fetchLogs(true);
       } else {
         showToast("error", data.message || "续期请求被拦截或失败，请检查是否处于续期窗口");
       }
@@ -5808,6 +5815,27 @@ export default function App() {
     }
   };
 
+  /** 注册后的上游列表可能短暂延迟；轮询本地缓存，避免成功后仍停在旧列表。 */
+  const waitForRegisteredDomain = async (fullDomain: string) => {
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      try {
+        const res = await apiFetch(`/api/domains?search=${encodeURIComponent(fullDomain)}`);
+        const data = await res.json();
+        if (data.success && (data.domains || []).some((domain: Domain) => String(domain.full_domain).toLowerCase() === fullDomain.toLowerCase())) {
+          await fetchDomains();
+          showToast("success", "新域名已同步到域名列表");
+          return;
+        }
+      } catch {
+        // 下一轮继续，最终保留明确的待同步状态。
+      }
+      await sleep(1200);
+    }
+    await fetchDomains();
+    showToast("warning", "域名已注册，但列表缓存仍在同步；稍后刷新或执行“同步所有账号”即可看到。 ");
+  };
+
   // 提交在线注册免费域名
   const handleRegisterSubdomain = async () => {
     const sub = toASCII(searchSubdomain.trim());
@@ -5840,12 +5868,13 @@ export default function App() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("success", `🎉 域名 [${data.full_domain || sub + "." + root}] 注册成功！`);
+        const registeredDomain = data.full_domain || sub + "." + root;
+        showToast("success", data.cache_sync === "pending" ? `域名 [${registeredDomain}] 已注册，正在同步列表…` : `🎉 域名 [${registeredDomain}] 注册成功！`);
         setWhoisResult(null);
         setSearchSubdomain("");
-        fetchDomains();
         void fetchQuotas(true);
         setActiveTab("domains");
+        void waitForRegisteredDomain(registeredDomain);
       } else {
         showToast("error", data.message || "注册子域名失败，请重试");
       }
@@ -6806,6 +6835,7 @@ export default function App() {
     { key: "register", label: "注册 / 查重", icon: <Plus className="w-5 h-5" /> },
     { key: "quota", label: "账户配额", icon: <Database className="w-5 h-5" /> },
     { key: "ddns", label: "动态 DNS", icon: <Radio className="w-5 h-5" /> },
+    { key: "renewal", label: "自动续期", icon: <RefreshCw className="w-5 h-5" /> },
     { key: "cfquota", label: "CF 免费额度", icon: <Gauge className="w-5 h-5" /> },
     { key: "logs", label: "运行日志", icon: <ScrollText className="w-5 h-5" /> },
     { key: "settings", label: "设置", icon: <Settings className="w-5 h-5" /> },
@@ -10952,6 +10982,22 @@ export default function App() {
           </div>
         )}
 
+        {activeTab === "renewal" && (
+          <RenewalPage
+            domains={domains}
+            logs={logs}
+            settings={settings}
+            loading={loadingDomains || loadingSettings || loadingLogs}
+            saving={actionLoading === "save-settings"}
+            actionLoading={actionLoading}
+            interfaceStyle={resolvePageStyle(interfaceStyle, "renewal", pageStylePreferences)}
+            onRefresh={() => { void fetchDomains(); void fetchLogs(true); void fetchSettings(); }}
+            onSaveSettings={() => void handleSaveSettings()}
+            onChangeSettings={(next) => setSettings((previous) => ({ ...previous, ...next }))}
+            onRenew={(domain) => void handleRenewDomain(domain as Domain)}
+          />
+        )}
+
         {/* 第24轮G：DNS 传播检查模态框（DNSHE 域名与 Cloudflare zone 共用） */}
         {propagationTarget && (
           <div role="dialog" aria-modal="true" data-app-modal="propagation" className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/55 backdrop-blur-[2px]" onClick={() => setPropagationTarget(null)}>
@@ -11411,35 +11457,17 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 自动续期 */}
+                {/* 自动续期入口：策略与待处理对象已集中到独立工作页 */}
                 <div
                   id="settings-renew"
                   className={`bg-surface border border-border-base rounded p-4 sm:p-5 lg:flex-1 space-y-4 ${settingsSectionVisible("settings-renew") ? "" : "hidden"}`}
                 >
-                  <h3 className="font-bold text-content-primary flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 text-emerald-400" /> 自动续期
-                  </h3>
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-content-primary">启用自动续期</div>
-                      <div className="text-xs text-content-muted mt-0.5">定时任务自动为即将到期的域名续期</div>
+                      <h3 className="font-bold text-content-primary flex items-center gap-2"><RefreshCw className="w-4 h-4 text-content-muted" /> 自动续期工作页</h3>
+                      <p className="text-xs text-content-secondary mt-1 leading-relaxed">策略、候选域名、任务证据和手动续期已集中到独立工作面，避免设置页与域名列表重复展示。</p>
                     </div>
-                    <button
-                      onClick={() => setSettings((s) => ({ ...s, auto_renew: s.auto_renew === "1" ? "0" : "1" }))}
-                      className={`w-12 h-6 rounded-full transition-all relative flex-shrink-0 ${settings.auto_renew === "1" ? "bg-primary" : "bg-elevated border border-border-base"}`}
-                    >
-                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${settings.auto_renew === "1" ? "left-6" : "left-0.5"}`} />
-                    </button>
-                  </div>
-                  <div className="pt-2 border-t border-border-soft">
-                    <label className="text-sm font-semibold text-content-primary">续期阈值（天）</label>
-                    <p className="text-xs text-content-muted mt-0.5 mb-2">剩余有效期低于此值时触发续期；续期结果（成功 / 失败）会通过通知渠道推送</p>
-                    <input
-                      type="number"
-                      value={settings.renew_threshold_days}
-                      onChange={(e) => setSettings((s) => ({ ...s, renew_threshold_days: e.target.value }))}
-                      className="form-input w-full px-3 h-10 rounded text-sm text-content-primary"
-                    />
+                    <button type="button" onClick={() => setActiveTab("renewal")} className="renewal-action flex-shrink-0">打开工作页</button>
                   </div>
                 </div>
                 </div>

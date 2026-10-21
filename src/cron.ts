@@ -37,6 +37,32 @@ const SYNC_DNS_CONCURRENCY = 6;
  */
 const DNS_RECHECK_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
+const RENEWAL_DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * 自动续期候选判定：缺少或无法解析到期时间时保持未知，不猜测为可续期；
+ * 已过期域名仍保留在候选集中，让上游明确返回“不可续期”而不是静默漏掉。
+ */
+export function isRenewalCandidate(
+  expiresAt: string | undefined | null,
+  now = Date.now(),
+  thresholdDays = 180
+): boolean {
+  const expiresTime = Date.parse(String(expiresAt || ""));
+  if (!Number.isFinite(expiresTime)) return false;
+  const threshold = Math.max(0, thresholdDays) * RENEWAL_DAY_MS;
+  return expiresTime - now <= threshold;
+}
+
+/**
+ * 续期成功也必须携带新的到期时间；空字段不能覆盖本地旧值。
+ */
+export function readRenewedExpiry(result: { success?: boolean; new_expires_at?: string | null }): string | null {
+  if (!result?.success) return null;
+  const value = String(result.new_expires_at || "").trim();
+  return value ? value : null;
+}
+
 
 /**
  * Cloudflare Workers 的 `connect()`。
@@ -623,14 +649,10 @@ export async function runDailySyncAndRenewal(
           if (!expiresAt) continue;
 
           // 计算到期剩余天数
-          const expiresTime = new Date(expiresAt).getTime();
-          const nowTime = Date.now();
-          const remainingDays = (expiresTime - nowTime) / (1000 * 60 * 60 * 24);
-
           // NOTE: DNSHE 免费域名有效期为 1 年，且平台允许随时续期。
           // 续期阈值默认 180 天（可在设置页配置 renew_threshold_days）：
           // 剩余有效期不足阈值时自动续期，防止遗忘导致域名过期丢失。
-          if (remainingDays >= 0 && remainingDays <= renewThresholdDays) {
+          if (isRenewalCandidate(expiresAt, Date.now(), renewThresholdDays)) {
             renewCandidates.push({ id: sub.id as number, fullDomain: sub.full_domain as string });
           }
         }
@@ -657,8 +679,11 @@ export async function runDailySyncAndRenewal(
               // 触发续期
               const renewResult = await client.renewSubdomain(cand.id);
               if (renewResult && renewResult.success) {
+                const newExpiresAt = readRenewedExpiry(renewResult);
+                if (!newExpiresAt) {
+                  throw new Error("上游返回续期成功但缺少 new_expires_at，本地到期时间未覆盖");
+                }
                 totalRenewSuccess++;
-                const newExpiresAt = renewResult.new_expires_at || "";
 
                 // 更新本地到期时间缓存
                 await dbManager.markDomainRenewed(cand.id, newExpiresAt);

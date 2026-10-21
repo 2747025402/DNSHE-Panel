@@ -10,7 +10,7 @@ import type { CfZoneInfo } from "./cloudflare";
 import { collectAccountUsage, createUsageLimiter, CF_FREE_LIMITS } from "./cfusage";
 import { parseCfUsageSnapshot, refreshCfUsageOnce, retainCfUsageOnFailure } from "./cfusage-cache";
 import type { CfUsagePayload, CfUsageSnapshot } from "./cfusage-cache";
-import { runDailySyncAndRenewal, fetchAllSubdomainsFromClient, syncOneAccountDomains, sendTelegramNotification, sendWebhookNotification, sendSmtpMail, SYNC_SUBREQUEST_BUDGET } from "./cron";
+import { runDailySyncAndRenewal, fetchAllSubdomainsFromClient, syncOneAccountDomains, sendTelegramNotification, sendWebhookNotification, sendSmtpMail, SYNC_SUBREQUEST_BUDGET, readRenewedExpiry } from "./cron";
 import type { WebhookType } from "./cron";
 import { computeDnsState } from "./dns-provider";
 import type { DnsState } from "./dns-provider";
@@ -153,34 +153,43 @@ async function cacheNewlyRegisteredDomain(
   accountId: number,
   subdomainId: number | undefined,
   fullDomain: string
-): Promise<void> {
-  // 上游只回传 subdomain_id / full_domain，注册时间与到期时间仍需从列表接口取
-  const subdomains = await fetchAllSubdomainsFromClient(client);
-  const created = subdomains.find(
-    (sub) => (subdomainId !== undefined && sub.id === subdomainId) || sub.full_domain === fullDomain
-  );
-  if (!created) {
-    console.error(`注册后未在上游列表中找到新域名: ${fullDomain}`);
-    return;
-  }
+): Promise<"synced" | "pending"> {
+  // 注册接口成功后，上游列表可能有短暂最终一致性延迟。有限重试避免立即读取旧快照。
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const subdomains = await fetchAllSubdomainsFromClient(client);
+    const created = subdomains.find(
+      (sub) => (subdomainId !== undefined && Number(sub.id) === Number(subdomainId)) ||
+        String(sub.full_domain || "").toLowerCase() === fullDomain.toLowerCase()
+    );
+    if (!created) {
+      if (attempt < 2) {
+        await sleep(800 * (attempt + 1));
+        continue;
+      }
+      console.warn(`注册后上游列表仍未出现新域名，将由后台重试缓存同步: ${fullDomain}`);
+      return "pending";
+    }
 
-  // 新域名理论上是「未解析」，但上游可能自动创建默认记录，仍以真实记录为准
-  let dnsState: Partial<DnsState> = {
-    status: "未解析",
-    has_dns: 1,
-    dns_provider: "system"
-  };
-  try {
-    const recordsRes = await client.listDnsRecords(created.id);
-    const records = recordsRes.records || [];
-    await dbManager.setCache(`api_cache:dns:${created.id}`, JSON.stringify(records));
-    dnsState = computeDnsState(records);
-  } catch (e) {
-    // 拉取失败时按新域名的默认三态入库；不带 dns_state_known，避免覆盖历史行的已有状态
-    console.error(`注册后拉取新域名解析记录失败 [${created.id}]:`, e);
-  }
+    // 新域名理论上是「未解析」，但上游可能自动创建默认记录，仍以真实记录为准
+    let dnsState: Partial<DnsState> = {
+      status: "未解析",
+      has_dns: 1,
+      dns_provider: "system"
+    };
+    try {
+      const recordsRes = await client.listDnsRecords(created.id);
+      const records = recordsRes.records || [];
+      await dbManager.setCache(`api_cache:dns:${created.id}`, JSON.stringify(records));
+      dnsState = computeDnsState(records);
+    } catch (e) {
+      // 拉取失败时按新域名的默认三态入库；不带 dns_state_known，避免覆盖历史行的已有状态
+      console.error(`注册后拉取新域名解析记录失败 [${created.id}]:`, e);
+    }
 
-  await dbManager.upsertDomain(accountId, { ...created, ...dnsState });
+    await dbManager.upsertDomain(accountId, { ...created, ...dnsState });
+    return "synced";
+  }
+  return "pending";
 }
 
 // NOTE: 辅助函数 - 如果在环境变量中配置了 DEFAULT_API_KEY 和 DEFAULT_API_SECRET，自动进行初始化绑定
@@ -1245,7 +1254,11 @@ app.post("/api/domains/:id/renew", async (c) => {
 
     const res = await client.renewSubdomain(domainId);
     if (res && res.success) {
-      const newExpiresAt = res.new_expires_at || "";
+      const newExpiresAt = readRenewedExpiry(res);
+      if (!newExpiresAt) {
+        await dbManager.writeLog("error", "renew", `域名 [${domainInfo.full_domain}] 续期响应缺少新到期时间，本地未覆盖旧值`);
+        return c.json(errorRes("上游返回续期成功但缺少新的到期时间，本地未覆盖旧值", "renewal_result_incomplete"), 502);
+      }
       await dbManager.markDomainRenewed(domainId, newExpiresAt);
 
       const msg = `域名 [${domainInfo.full_domain}] (账户: ${alias}) 手动续期成功！新有效期至: ${newExpiresAt}`;
@@ -3049,13 +3062,26 @@ app.post("/api/domains/register", async (c) => {
       // 只把新注册的这一个域名拉入 domains_cache
       // NOTE: 不能在这里做账号级别的全量同步 —— subdomains/list 不返回解析记录，
       // 会把该账号下所有域名的三态刷成「已解析 + 系统默认」，必须重新「同步所有账号」才能恢复。
+      let cacheSync: "synced" | "pending" = "pending";
       try {
-        await cacheNewlyRegisteredDomain(dbManager, client, account_id, res.subdomain_id, fullDomain);
+        cacheSync = await cacheNewlyRegisteredDomain(dbManager, client, account_id, res.subdomain_id, fullDomain);
       } catch (e) {
         console.error("注册后同步错误:", e);
       }
+      if (cacheSync === "pending") {
+        // waitUntil 继续做一次有界重试；HTTP 成功不再意味着前端必须永远等旧缓存。
+        c.executionCtx.waitUntil(
+          cacheNewlyRegisteredDomain(dbManager, client, account_id, res.subdomain_id, fullDomain)
+            .catch((e) => console.error("后台重试注册缓存同步失败:", e))
+        );
+      }
 
-      return c.json(successRes({ message: `域名 [${fullDomain}] 注册成功！`, subdomain_id: res.subdomain_id, full_domain: fullDomain }));
+      return c.json(successRes({
+        message: `域名 [${fullDomain}] 注册成功！`,
+        subdomain_id: res.subdomain_id,
+        full_domain: fullDomain,
+        cache_sync: cacheSync,
+      }));
     } else {
       throw new Error(res.message || "注册子域名失败");
     }
